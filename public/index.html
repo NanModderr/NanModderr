@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANANTA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0b0b1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent: #00d9a3;
+            --accent-dark: #00a87d;
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+        body.light-mode {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --text-primary: #1c1c1e;
+            --text-secondary: #666666;
+            --accent: #00a87d;
+            --accent-dark: #007a5a;
+            --border-color: rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 20, 147, 0.25), transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(138, 43, 226, 0.3), transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 191, 255, 0.2), transparent 60%);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-x: hidden; color: var(--text-primary);
+        }
+        body.light-mode { background-image: none; }
+        .top-bar {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 12px 20px; display: flex; align-items: center; gap: 12px; z-index: 100;
+            background: rgba(11, 11, 26, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid var(--border-color);
+        }
+        body.light-mode .top-bar { background: rgba(255, 255, 255, 0.9); }
+        .menu-btn, .share-btn, .cart-btn { background: transparent; border: none; color: var(--text-primary); font-size: 22px; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .share-btn, .cart-btn { font-size: 20px; }
+        .share-btn:hover, .cart-btn:hover { color: var(--accent); }
+        .cart-badge {
+            position: absolute; top: -2px; right: -5px; background: #ff4757; color: white; font-size: 10px; font-weight: 700;
+            padding: 2px 5px; border-radius: 50%; min-width: 16px; height: 16px; display: none; justify-content: center; align-items: center; box-shadow: 0 0 8px rgba(255, 71, 87, 0.8);
+        }
+        .cart-badge.show { display: flex; }
+        .search-bar { flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); border-radius: 25px; padding: 8px 15px; display: flex; align-items: center; gap: 8px; }
+        body.light-mode .search-bar { background: rgba(0, 0, 0, 0.05); }
+        .search-bar i { color: var(--text-secondary); font-size: 14px; }
+        .search-bar input { background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 14px; width: 100%; }
+        .search-bar input::placeholder { color: var(--text-secondary); }
+        .search-results {
+            position: fixed; top: 60px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 380px; background: var(--bg-secondary);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 10px; z-index: 99; display: none; max-height: 350px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .search-results.show { display: block; }
+        .search-result-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; cursor: pointer; color: var(--text-primary); text-decoration: none; font-size: 14px; }
+        .search-result-item:hover { background: rgba(0, 217, 163, 0.15); color: var(--accent); }
+        .search-result-item i { width: 20px; text-align: center; color: var(--accent); }
+        .search-empty { padding: 20px; text-align: center; color: var(--text-secondary); font-size: 14px; }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; background: var(--bg-secondary); z-index: 200; padding: 25px 20px; overflow-y: auto; transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1); border-right: 1px solid var(--border-color); }
+        .sidebar.open { left: 0; }
+        .sidebar-header { margin-bottom: 30px; padding-top: 20px; }
+        .sidebar-title { font-size: 32px; font-weight: 900; font-family: 'Impact', 'Arial Black', sans-serif; color: #ffffff; letter-spacing: 3px; line-height: 1.1; margin-bottom: 15px; text-transform: uppercase; text-shadow: 2px 2px 0px #ff1493, -1px -1px 0px #00bfff, 0 0 15px rgba(255, 20, 147, 0.8), 0 0 30px rgba(138, 43, 226, 0.6); }
+        .active-badge { display: inline-block; background: rgba(0, 217, 163, 0.15); color: var(--accent); border: 1px solid var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .nav-menu { display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 14px 18px; border-radius: 15px; color: var(--text-primary); text-decoration: none; font-size: 16px; font-weight: 500; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; font-family: inherit; }
+        .nav-item i { width: 22px; font-size: 18px; text-align: center; }
+        .nav-item.active { background: rgba(0, 217, 163, 0.15); color: var(--accent); }
+        .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
+        body.light-mode .nav-item:hover:not(.active) { background: rgba(0, 0, 0, 0.05); }
+        .divider { height: 1px; background: var(--border-color); margin: 15px 0; }
+        .theme-toggle-wrapper { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px 0; font-size: 15px; color: var(--text-secondary); }
+        .theme-toggle { position: relative; width: 60px; height: 30px; background: var(--bg-primary); border-radius: 15px; cursor: pointer; border: 1px solid var(--border-color); }
+        .theme-toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: var(--accent); border-radius: 50%; transition: transform 0.3s ease; }
+        body.light-mode .theme-toggle::after { transform: translateX(30px); }
+        .color-btn { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 25px; padding: 14px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; font-family: inherit; }
+        .color-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .color-picker { display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; padding: 15px; background: var(--bg-primary); border-radius: 15px; border: 1px solid var(--border-color); }
+        .color-picker.show { display: grid; }
+        .color-option { width: 100%; aspect-ratio: 1; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s ease; }
+        .color-option:hover { transform: scale(1.15); border-color: white; }
+        .lang-selector { display: flex; gap: 10px; margin-top: 15px; }
+        .lang-btn { flex: 1; background: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; transition: all 0.2s ease; }
+        .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .lang-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .lang-flag { font-size: 16px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 150; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; backdrop-filter: blur(3px); }
+        .overlay.show { opacity: 1; visibility: visible; }
+        .container { width: 100%; max-width: 380px; background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 30px; padding: 20px; box-shadow: 0 10px 40px rgba(138, 43, 226, 0.3); display: flex; flex-direction: column; align-items: center; border: 1px solid var(--border-color); position: relative; z-index: 10; margin-top: 60px; opacity: 0; animation: fadeIn 1.2s ease forwards; }
+        body.light-mode .container { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .header-section { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+        .banner { width: 100%; height: 110px; background-color: var(--bg-secondary); border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); background-image: url('https://files.catbox.moe/pp42rn.jpg'); background-size: cover; background-position: center; }
+        .profile-logo { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #ffffff; background-color: var(--bg-secondary); margin-top: -50px; z-index: 10; box-shadow: 0 5px 20px rgba(255, 20, 147, 0.6); background-image: url('https://files.catbox.moe/bapvik.jpg'); background-size: cover; background-position: center; position: relative; animation: floatLogo 3s ease-in-out infinite; }
+        @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .title { margin-top: 12px; font-size: 22px; font-weight: 800; color: var(--text-primary); text-shadow: 0 0 10px rgba(255, 20, 147, 0.8), 0 0 20px rgba(138, 43, 226, 0.5); letter-spacing: 3px; }
+        body.light-mode .title { text-shadow: none; }
+        .links-container { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+        .link-box { width: 100%; background-color: rgba(255, 255, 255, 0.95); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; text-decoration: none; color: #1c1c1e; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.5); position: relative; overflow: hidden; }
+        .link-box:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6), 0 0 15px rgba(255, 20, 147, 0.4); background-color: #ffffff; }
+        .link-box:active { transform: scale(0.97); }
+        .link-box::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent); transition: left 0.5s ease; }
+        .link-box:hover::before { left: 100%; }
+        .icon-wrapper { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; color: white; margin-right: 15px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.3s ease; }
+        .link-box:hover .icon-wrapper { transform: scale(1.15) rotate(-5deg); }
+        .wa-bg { background-color: #25D366; box-shadow: 0 0 15px rgba(37, 211, 102, 0.6); }
+        .ig-bg { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); box-shadow: 0 0 15px rgba(220, 39, 67, 0.6); }
+        .tt-bg { background-color: #000000; box-shadow: 0 0 15px rgba(0, 0, 0, 0.8); }
+        .yt-bg { background-color: #FF0000; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
+        .platform-name { font-size: 16px; font-weight: 600; letter-spacing: 0.5px; }
+        .trust-badges { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; margin-bottom: 5px; }
+        .trust-badge { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.3s ease; cursor: default; }
+        .trust-badge:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 5px 15px rgba(0, 217, 163, 0.3); }
+        .trust-badge i { font-size: 20px; }
+        .trust-badge.ssl i { color: #00d9a3; }
+        .trust-badge.verified i { color: #00bfff; }
+        .trust-badge.garansi i { color: #ffb800; }
+        .trust-badge-text { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; }
+        .page { display: none; width: 100%; max-width: 380px; margin-top: 60px; animation: fadeIn 0.6s ease forwards; }
+        .page.active { display: block; }
+        .page-card { background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 25px; padding: 25px; border: 1px solid var(--border-color); color: var(--text-primary); }
+        .page-card h2 { color: var(--accent); margin-bottom: 15px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+        .page-card p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; font-size: 15px; }
+        .promo-banner { background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(138, 43, 226, 0.2)); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 15px; padding: 15px; margin-bottom: 18px; text-align: center; }
+        .promo-text { color: #ff4757; font-size: 14px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; animation: promoBlink 1.5s ease-in-out infinite; }
+        @keyframes promoBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .countdown-timer { display: flex; justify-content: center; gap: 8px; }
+        .countdown-box { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 10px; padding: 8px 10px; min-width: 50px; }
+        .countdown-value { font-size: 18px; font-weight: 800; color: var(--accent); line-height: 1; }
+        .countdown-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+        .produk-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .produk-item { background: var(--bg-primary); border-radius: 18px; border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; cursor: pointer; opacity: 0; transform: translateY(30px); }
+        .produk-item.scroll-show { animation: scrollReveal 0.6s ease forwards; }
+        @keyframes scrollReveal { to { opacity: 1; transform: translateY(0); } }
+        .produk-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3); }
+        .produk-image { width: 100%; height: 150px; object-fit: cover; display: block; background-color: var(--bg-secondary); }
+        .diskon-badge { position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); color: white; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(255, 71, 87, 0.5); z-index: 5; animation: badgePulse 1.5s ease-in-out infinite; }
+        @keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .produk-body { padding: 15px; }
+        .produk-top { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+        .produk-icon { width: 50px; height: 50px; border-radius: 12px; background: var(--accent); display: flex; justify-content: center; align-items: center; color: white; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0, 217, 163, 0.4); }
+        .produk-info { flex: 1; }
+        .produk-name { font-weight: 700; font-size: 16px; color: var(--text-primary); margin-bottom: 4px; }
+        .produk-price-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .produk-price-old { font-size: 13px; color: var(--text-secondary); text-decoration: line-through; }
+        .produk-price { font-size: 15px; color: var(--accent); font-weight: 700; }
+        .produk-rating { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+        .produk-stars { display: flex; gap: 2px; }
+        .produk-stars i { font-size: 12px; color: #ffb800; }
+        .produk-stars i.empty { color: var(--border-color); }
+        .produk-rating-text { font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+        .produk-actions { display: flex; gap: 8px; }
+        .action-btn { flex: 1; border: none; border-radius: 12px; padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; transition: all 0.3s ease; font-family: inherit; letter-spacing: 0.5px; }
+        .action-btn.detail { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .action-btn.detail:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .action-btn.add-cart { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4); }
+        .action-btn.add-cart:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37, 211, 102, 0.7); }
+        .action-btn.add-cart.added { background: linear-gradient(135deg, #00d9a3 0%, #00a87d 100%); }
+        .sales-quote { padding: 18px; background: linear-gradient(135deg, rgba(0, 217, 163, 0.1), rgba(138, 43, 226, 0.1)); border-left: 4px solid var(--accent); border-radius: 12px; margin-bottom: 15px; font-style: italic; color: var(--text-primary); line-height: 1.7; font-size: 15px; }
+        .sales-quote-author { display: block; margin-top: 10px; font-style: normal; font-size: 13px; font-weight: 700; color: var(--accent); }
+        .credit { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-secondary); font-weight: 600; letter-spacing: 1px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .credit strong { color: var(--accent); font-weight: 800; }
+        .live-chat { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; font-size: 28px; display: flex; justify-content: center; align-items: center; text-decoration: none; box-shadow: 0 5px 20px rgba(37, 211, 102, 0.6); z-index: 90; cursor: pointer; animation: chatPulse 2s ease-in-out infinite; transition: transform 0.3s ease; }
+        .live-chat:hover { transform: scale(1.1); }
+        @keyframes chatPulse { 0%, 100% { box-shadow: 0 5px 20px rgba(37, 211, 102,0.6); } 50% { box-shadow: 0 5px 20px rgba(37, 211, 102, 0.6), 0 0 0 12px rgba(37, 211, 102, 0.2), 0 0 0 24px rgba(37, 211, 102, 0.1); } }
+        .live-chat-tooltip { position: fixed; bottom: 35px; right: 95px; background: var(--bg-secondary); color: var(--text-primary); padding: 10px 15px; border-radius: 12px; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color); z-index: 89; opacity: 0; animation: tooltipShow 0.5s ease 2s forwards; }
+        .live-chat-tooltip::after { content: ''; position: absolute; top: 50%; right: -6px; transform: translateY(-50%); border: 6px solid transparent; border-left-color: var(--bg-secondary); }
+        @keyframes tooltipShow { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { background: var(--bg-secondary); border-radius: 25px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; border: 1px solid var(--border-color); box-shadow: 0 20px 60px rgba(138, 43, 226, 0.5); animation: modalIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-close { position: absolute; top: 15px; right: 15px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); color: #1c1c1e; border: none; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 10; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .modal-close:hover { background: #ff4757; color: white; transform: rotate(90deg); }
+        .modal-image { width: 100%; height: 220px; object-fit: cover; display: block; border-radius: 25px 25px 0 0; background-color: var(--bg-primary); }
+        .modal-badge-container { position: absolute; top: 15px; left: 15px; z-index: 5; }
+        .modal-body { padding: 25px; color: var(--text-primary); }
+        .modal-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .modal-rating { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .modal-stars { display: flex; gap: 3px; }
+        .modal-stars i { font-size: 16px; color: #ffb800; }
+        .modal-stars i.empty { color: var(--border-color); }
+        .modal-rating-info { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+        .modal-rating-score { color: var(--accent); font-weight: 800; font-size: 15px; }
+        .modal-price-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .modal-price { font-size: 24px; font-weight: 800; color: var(--accent); text-shadow: 0 0 15px rgba(0, 217, 163, 0.5); }
+        .modal-price-old { font-size: 16px; color: var(--text-secondary); text-decoration: line-through; }
+        .modal-description-title { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .modal-description { color: var(--text-secondary); line-height: 1.7; font-size: 15px; margin-bottom: 20px; }
+        .modal-specs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; padding: 15px; background: var(--bg-primary); border-radius: 15px; border: 1px solid var(--border-color); }
+        .modal-spec-item { display: flex; justify-content: space-between; font-size: 14px; gap: 10px; }
+        .modal-spec-label { color: var(--text-secondary); font-weight: 500; }
+        .modal-spec-value { color: var(--text-primary); font-weight: 700; text-align: right; }
+        .modal-trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .modal-trust-item { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .modal-trust-item i { font-size: 16px; }
+        .modal-trust-item.ssl i { color: #00d9a3; }
+        .modal-trust-item.verified i { color: #00bfff; }
+        .modal-trust-item.garansi i { color: #ffb800; }
+        .modal-trust-text { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; text-align: center; letter-spacing: 0.5px; }
+        .cart-modal-content { background: var(--bg-secondary); border-radius: 25px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; border: 1px solid var(--border-color); box-shadow: 0 20px 60px rgba(138, 43, 226, 0.5); animation: modalIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cart-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .cart-header h2 { color: var(--accent); font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .cart-body { padding: 20px 25px; }
+        .cart-empty { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .cart-empty i { font-size: 50px; color: var(--border-color); margin-bottom: 15px; display: block; }
+        .cart-item { display: flex; gap: 12px; padding: 12px; background: var(--bg-primary); border-radius: 15px; border: 1px solid var(--border-color); margin-bottom: 12px; align-items: center; }
+        .cart-item-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+        .cart-item-info { flex: 1; min-width: 0; }
+        .cart-item-name { font-weight: 700; font-size: 14px; color: var(--text-primary); margin-bottom: 4px; }
+        .cart-item-price { font-size: 13px; color: var(--accent); font-weight: 700; }
+        .cart-qty { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+        .qty-btn { width: 26px; height: 26px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 13px; }
+        .qty-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .qty-value { font-weight: 700; font-size: 14px; color: var(--text-primary); min-width: 20px; text-align: center; }
+        .cart-item-remove { background: transparent; border: none; color: #ff4757; cursor: pointer; font-size: 16px; padding: 5px; }
+        .cart-item-remove:hover { transform: scale(1.2); }
+        .cart-summary { background: var(--bg-primary); border-radius: 15px; padding: 15px; margin-top: 15px; border: 1px solid var(--border-color); }
+        .cart-summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: var(--text-secondary); }
+        .cart-summary-row.total { font-size: 18px; font-weight: 800; color: var(--accent); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color); margin-bottom: 0; }
+        .voucher-section { margin-top: 15px; }
+        .voucher-input-row { display: flex; gap: 8px; }
+        .voucher-input { flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 11px 15px; color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+        .voucher-input::placeholder { color: var(--text-secondary); text-transform: none; letter-spacing: 0; }
+        .voucher-input:focus { border-color: var(--accent); }
+        .voucher-btn { background: var(--accent); color: white; border: none; border-radius: 12px; padding: 11px 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+        .voucher-btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+        .voucher-message { font-size: 12px; margin-top: 8px; font-weight: 600; display: none; }
+        .voucher-message.success { display: block; color: #00d9a3; }
+        .voucher-message.error { display: block; color: #ff4757; }
+        .payment-section { margin-top: 15px; }
+        .payment-title { font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .payment-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .payment-option { background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 12px; padding: 12px 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.2s ease; font-family: inherit; }
+        .payment-option:hover { border-color: var(--accent); }
+        .payment-option.selected { border-color: var(--accent); background: rgba(0, 217, 163, 0.15); }
+        .payment-option i { font-size: 20px; color: var(--accent); }
+        .payment-option-name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+        .checkout-btn { width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.5); transition: all 0.3s ease; font-family: inherit; margin-top: 20px; letter-spacing: 0.5px; }
+        .checkout-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.8); }
+
+        /* ================= PANEL PTERODACTYL ================= */
+        .panel-hero { background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(0, 217, 163, 0.2)); border: 1px solid var(--accent); border-radius: 18px; padding: 20px; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+        .panel-hero::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0, 217, 163, 0.15), transparent 70%); animation: pulseHero 4s ease-in-out infinite; }
+        @keyframes pulseHero { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
+        .panel-hero-icon { font-size: 40px; color: var(--accent); margin-bottom: 10px; position: relative; z-index: 2; animation: floatLogo 3s ease-in-out infinite; }
+        .panel-hero-title { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; position: relative; z-index: 2; letter-spacing: 1px; }
+        .panel-hero-desc { font-size: 13px; color: var(--text-secondary); position: relative; z-index: 2; line-height: 1.5; }
+        .ram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .ram-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .ram-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 8px 20px rgba(0, 217, 163, 0.3); }
+        .ram-card:active { transform: scale(0.97); }
+        .ram-card.populer { border-color: #ffb800; box-shadow: 0 0 15px rgba(255, 184, 0, 0.2); }
+        .ram-card.best-value { border-color: #ff1493; box-shadow: 0 0 15px rgba(255, 20, 147, 0.2); }
+        .ram-badge { position: absolute; top: 6px; right: 6px; background: linear-gradient(135deg, #ffb800, #ff8c00); color: white; font-size: 8px; font-weight: 800; padding: 3px 7px; border-radius: 10px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .ram-badge.hot { background: linear-gradient(135deg, #ff1493, #8a2be2); }
+        .ram-badge.reseller { background: linear-gradient(135deg, #00bfff, #8a2be2); }
+        .ram-icon { font-size: 22px; color: var(--accent); margin-bottom: 6px; }
+        .ram-name { font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; letter-spacing: 0.5px; }
+        .ram-price { font-size: 18px; font-weight: 900; color: var(--accent); text-shadow: 0 0 10px rgba(0, 217, 163, 0.5); letter-spacing: 1px; }
+        .ram-price span { font-size: 10px; font-weight: 600; color: var(--text-secondary); display: block; margin-top: 2px; }
+        .panel-info { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 15px; margin-top: 15px; }
+        .panel-info-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .panel-info-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5; }
+        .panel-info-item i { color: var(--accent); width: 16px; text-align: center; flex-shrink: 0; }
+        .panel-info-item:last-child { margin-bottom: 0; }
+
+        /* ================= TESTIMONI ================= */
+        .testimoni-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .testimoni-title { font-size: 15px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .testimoni-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 15px; margin-bottom: 12px; transition: all 0.3s ease; }
+        .testimoni-card:hover { transform: translateX(5px); border-color: var(--accent); }
+        .testimoni-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .testimoni-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8a2be2); display: flex; justify-content: center; align-items: center; color: white; font-weight: 800; font-size: 16px; flex-shrink: 0; }
+        .testimoni-info { flex: 1; }
+        .testimoni-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+        .testimoni-stars { display: flex; gap: 2px; }
+        .testimoni-stars i { font-size: 11px; color: #ffb800; }
+        .testimoni-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
+        .testimoni-date { font-size: 11px; color: var(--text-secondary); margin-top: 8px; opacity: 0.7; }
+
+        /* ================= STATUS PESANAN ================= */
+        .status-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .status-title { font-size: 15px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .status-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .status-input { flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 15px; color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+        .status-input::placeholder { color: var(--text-secondary); text-transform: none; letter-spacing: 0; }
+        .status-input:focus { border-color: var(--accent); }
+        .status-btn { background: var(--accent); color: white; border: none; border-radius: 12px; padding: 12px 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; }
+        .status-btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+        .status-result { display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 15px; margin-top: 12px; }
+        .status-result.show { display: block; }
+        .status-result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .status-order-id { font-size: 13px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-badge.aktif { background: rgba(0, 217, 163, 0.2); color: #00d9a3; border: 1px solid #00d9a3; }
+        .status-badge.proses { background: rgba(255, 184, 0, 0.2); color: #ffb800; border: 1px solid #ffb800; }
+        .status-badge.expired { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; }
+        .status-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; gap: 10px; }
+        .status-label { color: var(--text-secondary); }
+        .status-value { color: var(--text-primary); font-weight: 700; text-align: right; }
+        .status-not-found { text-align: center; padding: 15px; color: #ff4757; font-size: 13px; font-weight: 600; display: none; }
+        .status-not-found.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Cari produk, kata penjualan..." oninput="handleSearch()" onfocus="handleSearch()">
+            <i class="fas fa-times" id="clearBtn" style="cursor:pointer; display:none;" onclick="clearSearch()"></i>
+        </div>
+        <button class="share-btn" onclick="shareWebsite()"><i class="fas fa-share-alt"></i></button>
+        <button class="cart-btn" onclick="openCart()">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+    </div>
+
+    <div class="search-results" id="searchResults"></div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">WELCOME</div>
+            <span class="active-badge" data-i18n="active_badge">Aktif!</span>
+        </div>
+        <nav class="nav-menu">
+            <button class="nav-item active" onclick="showPage('home', this)"><i class="fas fa-home"></i><span data-i18n="menu_home">Rumah</span></button>
+            <button class="nav-item" onclick="showPage('produk', this)"><i class="fas fa-shopping-cart"></i><span data-i18n="menu_produk">Produk</span></button>
+            <button class="nav-item" onclick="showPage('panel', this)"><i class="fas fa-server"></i><span data-i18n="menu_panel">Panel Pterodactyl</span></button>
+            <button class="nav-item" onclick="showPage('penjualan', this)"><i class="fas fa-quote-left"></i><span data-i18n="menu_penjualan">Kata Penjualan</span></button>
+        </nav>
+        <div class="divider"></div>
+        <div class="lang-selector">
+            <button class="lang-btn active" id="langId" onclick="setLanguage('id')"><span class="lang-flag">🇮🇩</span><span>Indonesia</span></button>
+            <button class="lang-btn" id="langEn" onclick="setLanguage('en')"><span class="lang-flag">🇬🇧</span><span>English</span></button>
+        </div>
+        <div class="divider"></div>
+        <div class="theme-toggle-wrapper">
+            <span data-i18n="theme_light">Lampu</span>
+            <div class="theme-toggle" onclick="toggleTheme()"></div>
+            <span data-i18n="theme_dark">Gelap</span>
+        </div>
+        <button class="color-btn" onclick="toggleColorPicker()"><i class="fas fa-frog"></i><span data-i18n="color_btn">Atur Warna</span></button>
+        <div class="color-picker" id="colorPicker">
+            <div class="color-option" style="background:#00d9a3;" onclick="setAccent('#00d9a3')"></div>
+            <div class="color-option" style="background:#ff1493;" onclick="setAccent('#ff1493')"></div>
+            <div class="color-option" style="background:#8a2be2;" onclick="setAccent('#8a2be2')"></div>
+            <div class="color-option" style="background:#00bfff;" onclick="setAccent('#00bfff')"></div>
+            <div class="color-option" style="background:#ff6b35;" onclick="setAccent('#ff6b35')"></div>
+        </div>
+    </div>
+
+    <!-- HALAMAN RUMAH -->
+    <div class="page active" id="page-home">
+        <div class="container">
+            <div class="header-section">
+                <div class="banner"></div>
+                <div class="profile-logo"></div>
+                <div class="title">ANANTA</div>
+            </div>
+            <div class="links-container">
+                <a href="https://whatsapp.com/channel/0029Vb6XtueHrDZov63eGV1g" target="_blank" class="link-box">
+                    <div class="icon-wrapper wa-bg"><i class="fab fa-whatsapp"></i></div>
+                    <span class="platform-name" data-i18n="link_wa">Saluran WhatsApp</span>
+                </a>
+                <a href="https://www.instagram.com/adnnrfndi" target="_blank" class="link-box">
+                    <div class="icon-wrapper ig-bg"><i class="fab fa-instagram"></i></div>
+                    <span class="platform-name">Instagram</span>
+                </a>
+                <a href="https://www.tiktok.com/@naan.nn1" target="_blank" class="link-box">
+                    <div class="icon-wrapper tt-bg"><i class="fab fa-tiktok"></i></div>
+                    <span class="platform-name">TikTok</span>
+                </a>
+                <a href="https://www.youtube.com/@Vienna-s3b" target="_blank" class="link-box">
+                    <div class="icon-wrapper yt-bg"><i class="fab fa-youtube"></i></div>
+                    <span class="platform-name">YouTube</span>
+                </a>
+            </div>
+            <div class="trust-badges">
+                <div class="trust-badge ssl"><i class="fas fa-lock"></i><div class="trust-badge-text" data-i18n="badge_ssl">SSL Secure</div></div>
+                <div class="trust-badge verified"><i class="fas fa-check-circle"></i><div class="trust-badge-text" data-i18n="badge_verified">Terverifikasi</div></div>
+                <div class="trust-badge garansi"><i class="fas fa-shield-alt"></i><div class="trust-badge-text" data-i18n="badge_garansi">Garansi</div></div>
+            </div>
+            <div class="credit"><strong>Ananta</strong> &copy; 2025</div>
+        </div>
+    </div>
+
+    <!-- HALAMAN PRODUK -->
+    <div class="page" id="page-produk">
+        <div class="page-card">
+            <h2><i class="fas fa-shopping-cart"></i> <span data-i18n="produk_title">Produk Kami</span></h2>
+            <p data-i18n="produk_desc">Klik produk untuk lihat detail lengkap:</p>
+            <div class="promo-banner">
+                <div class="promo-text" data-i18n="promo_text">🔥 PROMO TERBATAS 🔥</div>
+                <div class="countdown-timer">
+                    <div class="countdown-box"><div class="countdown-value" id="cdDays">00</div><div class="countdown-label" data-i18n="cd_days">Hari</div></div>
+                    <div class="countdown-box"><div class="countdown-value" id="cdHours">00</div><div class="countdown-label" data-i18n="cd_hours">Jam</div></div>
+                    <div class="countdown-box"><div class="countdown-value" id="cdMinutes">00</div><div class="countdown-label" data-i18n="cd_minutes">Menit</div></div>
+                    <div class="countdown-box"><div class="countdown-value" id="cdSeconds">00</div><div class="countdown-label" data-i18n="cd_seconds">Detik</div></div>
+                </div>
+            </div>
+            <div class="produk-list" id="produkList"></div>
+            <div class="credit"><strong>Ananta</strong> &copy; 2025</div>
+        </div>
+    </div>
+
+    <!-- HALAMAN PANEL PTERODACTYL -->
+    <div class="page" id="page-panel">
+        <div class="page-card">
+            <h2><i class="fas fa-server"></i> <span data-i18n="panel_title">Panel Pterodactyl</span></h2>
+
+            <div class="panel-hero">
+                <div class="panel-hero-icon"><i class="fas fa-server"></i></div>
+                <div class="panel-hero-title" data-i18n="panel_hero_title">PANEL PTERODACTYL</div>
+                <div class="panel-hero-desc" data-i18n="panel_hero_desc">Pilih paket RAM sesuai kebutuhanmu. Cepat, stabil, dan bergaransi!</div>
+            </div>
+
+            <p data-i18n="panel_desc">Klik paket untuk langsung order via WhatsApp:</p>
+
+            <div class="ram-grid" id="ramGrid"></div>
+
+            <div class="panel-info">
+                <div class="panel-info-title"><i class="fas fa-info-circle"></i> <span data-i18n="panel_info_title">Keunggulan Panel</span></div>
+                <div class="panel-info-item"><i class="fas fa-check"></i><span data-i18n="panel_f1">Server 24 jam non-stop</span></div>
+                <div class="panel-info-item"><i class="fas fa-check"></i><span data-i18n="panel_f2">Full akses panel & FTP</span></div>
+                <div class="panel-info-item"><i class="fas fa-check"></i><span data-i18n="panel_f3">Anti lag & anti delay</span></div>
+                <div class="panel-info-item"><i class="fas fa-check"></i><span data-i18n="panel_f4">Garansi 100% uang kembali</span></div>
+                <div class="panel-info-item"><i class="fas fa-check"></i><span data-i18n="panel_f5">Support 24/7 siap membantu</span></div>
+            </div>
+
+            <!-- STATUS PESANAN -->
+            <div class="status-section">
+                <div class="status-title"><i class="fas fa-search"></i> <span data-i18n="status_title">Cek Status Pesanan</span></div>
+                <p style="font-size:13px; margin-bottom:12px;" data-i18n="status_desc">Masukkan Order ID kamu untuk cek status panel:</p>
+                <div class="status-input-row">
+                    <input type="text" class="status-input" id="statusInput" placeholder="Contoh: ANTA-12345">
+                    <button class="status-btn" onclick="checkStatus()">
+                        <i class="fas fa-search"></i>
+                        <span data-i18n="status_btn">Cek</span>
+                    </button>
+                </div>
+                <div class="status-not-found" id="statusNotFound">
+                    <i class="fas fa-times-circle"></i> <span data-i18n="status_not_found">Order ID tidak ditemukan!</span>
+                </div>
+                <div class="status-result" id="statusResult">
+                    <div class="status-result-header">
+                        <span class="status-order-id" id="statusOrderId">ANTA-12345</span>
+                        <span class="status-badge aktif" id="statusBadge">AKTIF</span>
+                    </div>
+                    <div class="status-row"><span class="status-label" data-i18n="status_package">Paket</span><span class="status-value" id="statusPackage">RAM 1GB</span></div>
+                    <div class="status-row"><span class="status-label" data-i18n="status_owner">Pemilik</span><span class="status-value" id="statusOwner">-</span></div>
+                    <div class="status-row"><span class="status-label" data-i18n="status_expired">Aktif Hingga</span><span class="status-value" id="statusExpired">-</span></div>
+                </div>
+            </div>
+
+            <!-- TESTIMONI -->
+            <div class="testimoni-section">
+                <div class="testimoni-title"><i class="fas fa-quote-left"></i> <span data-i18n="testimoni_title">Testimoni Pelanggan</span></div>
+                <div id="testimoniList"></div>
+            </div>
+
+            <div class="credit"><strong>Ananta</strong> &copy; 2025</div>
+        </div>
+    </div>
+
+    <!-- HALAMAN KATA PENJUALAN -->
+    <div class="page" id="page-penjualan">
+        <div class="page-card">
+            <h2><i class="fas fa-quote-left"></i> <span data-i18n="sales_title">Kata Penjualan Terbaik</span></h2>
+            <p data-i18n="sales_desc">Kumpulan kata-kata promosi yang bisa bikin pembeli tertarik:</p>
+            <div class="sales-quote" data-i18n="quote1">"Kualitas bukan kebetulan, tapi pilihan. Pilih yang terbaik untukmu hari ini!"<span class="sales-quote-author">— Ananta</span></div>
+            <div class="sales-quote" data-i18n="quote2">"Jangan tunggu besok, karena kesempatan terbaik ada hari ini. Ambil sekarang sebelum kehabisan!"<span class="sales-quote-author">— Ananta</span></div>
+            <div class="sales-quote" data-i18n="quote3">"Harga boleh bersaing, tapi kualitas kami tak tertandingi. Buktikan sendiri!"<span class="sales-quote-author">— Ananta</span></div>
+            <div class="sales-quote" data-i18n="quote4">"Satu klik hari ini, kepuasan seumur hidup. Yuk, order sekarang!"<span class="sales-quote-author">— Ananta</span></div>
+            <div class="credit"><strong>Ananta</strong> &copy; 2025</div>
+        </div>
+    </div>
+
+    <div class="live-chat-tooltip" id="chatTooltip">💬 Butuh bantuan? Chat kami!</div>
+    <a href="https://wa.me/6283826963189?text=Halo%20Ananta%2C%20saya%20ingin%20bertanya" target="_blank" class="live-chat" id="liveChat"><i class="fab fa-whatsapp"></i></a>
+
+    <!-- MODAL DETAIL PRODUK -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-badge-container"><span class="diskon-badge" id="modalDiskon">PROMO 50%</span></div>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <img src="" alt="Detail Produk" class="modal-image" id="modalImage">
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle">Alight Motion 1 Tahun</h2>
+                <div class="modal-rating">
+                    <div class="modal-stars" id="modalStars"></div>
+                    <span class="modal-rating-score" id="modalRatingScore">4.9</span>
+                    <span class="modal-rating-info" id="modalRatingInfo">(210 ulasan)</span>
+                </div>
+                <div class="modal-price-row">
+                    <span class="modal-price-old" id="modalPriceOld">Rp 10.000</span>
+                    <span class="modal-price" id="modalPrice">Rp 5.000</span>
+                </div>
+                <div class="modal-description-title"><i class="fas fa-align-left"></i><span data-i18n="modal_desc_title">Deskripsi Produk</span></div>
+                <p class="modal-description" id="modalDescription"></p>
+                <div class="modal-description-title"><i class="fas fa-info-circle"></i><span data-i18n="modal_specs_title">Informasi Produk</span></div>
+                <div class="modal-specs">
+                    <div class="modal-spec-item"><span class="modal-spec-label" data-i18n="modal_stock">Stok Tersedia</span><span class="modal-spec-value" id="modalStock">Unlimited</span></div>
+                    <div class="modal-spec-item"><span class="modal-spec-label" data-i18n="modal_category">Kategori</span><span class="modal-spec-value" id="modalCategory">Aplikasi</span></div>
+                    <div class="modal-spec-item"><span class="modal-spec-label" data-i18n="modal_condition">Kondisi</span><span class="modal-spec-value" data-i18n="modal_condition_value">Baru & Original</span></div>
+                </div>
+                <div class="modal-trust">
+                    <div class="modal-trust-item ssl"><i class="fas fa-lock"></i><div class="modal-trust-text" data-i18n="badge_ssl">SSL Secure</div></div>
+                    <div class="modal-trust-item verified"><i class="fas fa-check-circle"></i><div class="modal-trust-text" data-i18n="badge_verified">Terverifikasi</div></div>
+                    <div class="modal-trust-item garansi"><i class="fas fa-shield-alt"></i><div class="modal-trust-text" data-i18n="badge_garansi">Garansi</div></div>
+                </div>
+                <div class="produk-actions">
+                    <button class="action-btn detail" onclick="addToCartFromModal()"><i class="fas fa-cart-plus"></i><span data-i18n="add_to_cart">Tambah Keranjang</span></button>
+                    <a href="" target="_blank" class="action-btn add-cart" id="modalOrderBtn"><i class="fab fa-whatsapp"></i><span data-i18n="order_now">Order Langsung</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KERANJANG -->
+    <div class="modal-overlay" id="cartOverlay" onclick="closeCart(event)">
+        <div class="cart-modal-content" onclick="event.stopPropagation()">
+            <div class="cart-header">
+                <h2><i class="fas fa-shopping-bag"></i> <span data-i18n="cart_title">Keranjang</span></h2>
+                <button class="modal-close" style="position:static;" onclick="closeCart()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-body" id="cartBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ================= DATA PRODUK (Hanya Alight Motion) =================
+        const products = [
+            {
+                image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=400&fit=crop',
+                diskon: 'PROMO 50%', priceOld: 'Rp 10.000', price: 'Rp 5.000', priceNum: 5000,
+                stock: 'Unlimited', rating: 4.9, reviewCount: 210,
+                category: { id: 'Aplikasi', en: 'Application' },
+                desc: { 
+                    id: 'Alight Motion Pro 1 Tahun, nikmati semua fitur premium tanpa watermark, tanpa iklan, dan akses penuh ke semua efek & template. Aktivasi cepat dan aman!', 
+                    en: 'Alight Motion Pro 1 Year, enjoy all premium features without watermark, no ads, and full access to all effects & templates. Fast and safe activation!' 
+                },
+                wa: 'https://wa.me/6283826963189?text=Halo%20Ananta%2C%20saya%20mau%20order%20Alight%20Motion%201%20Tahun%20(Rp%205.000)'
+            }
+        ];
+
+        // ================= DATA PANEL PTERODACTYL =================
+        const ramPackages = [
+            { name: 'RAM 1GB', price: '1K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 2GB', price: '2K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 3GB', price: '3K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 4GB', price: '4K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 5GB', price: '5K', icon: 'fa-memory', badge: 'POPULER' },
+            { name: 'RAM 6GB', price: '6K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 7GB', price: '7K', icon: 'fa-memory', badge: '' },
+            { name: 'RAM 8GB', price: '8K', icon: 'fa-memory', badge: 'HOT', badgeClass: 'hot' },
+            { name: 'RAM 10GB', price: '9K', icon: 'fa-memory', badge: 'BEST VALUE', badgeClass: 'hot' },
+            { name: 'RAM UNLI', price: '10K', icon: 'fa-infinity', badge: 'UNLIMITED', badgeClass: 'reseller' },
+            { name: 'RESELLER', price: '25K', icon: 'fa-crown', badge: 'RESELLER', badgeClass: 'reseller' }
+        ];
+
+        // ================= DATA TESTIMONI =================
+        const testimonials = [
+            { name: 'Rifki', initial: 'R', rating: 5, text: 'Panelnya kencang banget, gak pernah lag. Recommended!', date: '2 hari lalu' },
+            { name: 'Dinda', initial: 'D', rating: 5, text: 'Admin fast respon, panel langsung aktif 5 menit. Mantap!', date: '3 hari lalu' },
+            { name: 'Bagas', initial: 'B', rating: 4, text: 'Harga murah, kualitas oke. Bakal langganan terus.', date: '5 hari lalu' },
+            { name: 'Sarah', initial: 'S', rating: 5, text: 'Sudah 3 bulan pakai, uptime 99%. Puas banget!', date: '1 minggu lalu' },
+            { name: 'Alvin', initial: 'A', rating: 5, text: 'Supportnya ramah, dijelasin detail. Terbaik!', date: '1 minggu lalu' }
+        ];
+
+        // ================= DATA ORDER (Untuk Cek Status) =================
+        const orders = {
+            'ANTA-12345': { package: 'RAM 1GB', owner: 'Rifki', expired: '30 Okt 2025', status: 'aktif' },
+            'ANTA-67890': { package: 'RAM 5GB', owner: 'Dinda', expired: '15 Nov 2025', status: 'aktif' },
+            'ANTA-11111': { package: 'RAM 10GB', owner: 'Bagas', expired: '5 Okt 2025', status: 'proses' },
+            'ANTA-22222': { package: 'RAM UNLI', owner: 'Sarah', expired: '20 Sep 2025', status: 'expired' }
+        };
+
+        // ================= DATA VOUCHER =================
+        const vouchers = { 'ANANTA10': 10, 'PROMO20': 20, 'DISKON50': 50 };
+        let appliedVoucher = 0, appliedVoucherCode = '', selectedPayment = '';
+        let currentLang = localStorage.getItem('ananta-lang') || 'id';
+        let currentProductIndex = 0;
+        let cart = JSON.parse(localStorage.getItem('ananta-cart') || '[]');
+
+        // ================= COUNTDOWN =================
+        const promoEndDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000);
+        function updateCountdown() {
+            const distance = promoEndDate - new Date().getTime();
+            if (distance < 0) { ['cdDays', 'cdHours', 'cdMinutes', 'cdSeconds'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '00'; }); return; }
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const els = { cdDays: days, cdHours: hours, cdMinutes: minutes, cdSeconds: seconds };
+            Object.keys(els).forEach(id => { const el = document.getElementById(id); if(el) el.textContent = String(els[id]).padStart(2, '0'); });
+        }
+        setInterval(updateCountdown, 1000); updateCountdown();
+
+        // ================= TRANSLATIONS =================
+        const translations = {
+            id: {
+                search_placeholder: "Cari produk, kata penjualan...", active_badge: "Aktif!",
+                menu_home: "Rumah", menu_produk: "Produk", menu_panel: "Panel Pterodactyl", menu_penjualan: "Kata Penjualan",
+                theme_light: "Lampu", theme_dark: "Gelap", color_btn: "Atur Warna", link_wa: "Saluran WhatsApp",
+                produk_title: "Produk Kami", produk_desc: "Klik produk untuk lihat detail lengkap:",
+                produk1_name: "Alight Motion 1 Tahun",
+                order_btn: "Order Sekarang", detail_btn: "Detail", add_to_cart: "Tambah Keranjang", order_now: "Order Langsung",
+                sales_title: "Kata Penjualan Terbaik", sales_desc: "Kumpulan kata-kata promosi yang bisa bikin pembeli tertarik:",
+                quote1: '"Kualitas bukan kebetulan, tapi pilihan. Pilih yang terbaik untukmu hari ini!"',
+                quote2: '"Jangan tunggu besok, karena kesempatan terbaik ada hari ini. Ambil sekarang sebelum kehabisan!"',
+                quote3: '"Harga boleh bersaing, tapi kualitas kami tak tertandingi. Buktikan sendiri!"',
+                quote4: '"Satu klik hari ini, kepuasan seumur hidup. Yuk, order sekarang!"',
+                search_no_result: "Tidak ada hasil untuk", share_text: "Bagikan Website Ananta", share_copied: "✅ Link berhasil disalin!",
+                chat_tooltip: "💬 Butuh bantuan? Chat kami!", modal_desc_title: "Deskripsi Produk", modal_specs_title: "Informasi Produk",
+                modal_stock: "Stok Tersedia", modal_category: "Kategori", modal_condition: "Kondisi", modal_condition_value: "Baru & Original",
+                promo_text: "🔥 PROMO TERBATAS 🔥", cd_days: "Hari", cd_hours: "Jam", cd_minutes: "Menit", cd_seconds: "Detik",
+                cart_title: "Keranjang", cart_empty: "Keranjang masih kosong", cart_empty_desc: "Yuk pilih produk dulu!",
+                cart_subtotal: "Subtotal", cart_discount: "Diskon", cart_total: "Total", voucher_placeholder: "Kode Voucher", voucher_apply: "Pakai",
+                voucher_success: "✅ Voucher berhasil! Diskon", voucher_error: "❌ Kode voucher tidak valid!",
+                payment_title: "Metode Pembayaran", payment_bca: "Transfer BCA", payment_qris: "QRIS", payment_dana: "DANA", payment_cod: "COD",
+                checkout_btn: "Checkout via WhatsApp", checkout_empty: "Keranjang masih kosong!", checkout_payment: "Pilih metode pembayaran dulu!",
+                remove: "Hapus", badge_ssl: "SSL Secure", badge_verified: "Terverifikasi", badge_garansi: "Garansi", ulasan: "ulasan",
+                panel_title: "Panel Pterodactyl", panel_hero_title: "PANEL PTERODACTYL",
+                panel_hero_desc: "Pilih paket RAM sesuai kebutuhanmu. Cepat, stabil, dan bergaransi!",
+                panel_desc: "Klik paket untuk langsung order via WhatsApp:", panel_info_title: "Keunggulan Panel",
+                panel_f1: "Server 24 jam non-stop", panel_f2: "Full akses panel & FTP", panel_f3: "Anti lag & anti delay",
+                panel_f4: "Garansi 100% uang kembali", panel_f5: "Support 24/7 siap membantu",
+                per_bulan: "per bulan", order_wa: "Pesan via WhatsApp",
+                status_title: "Cek Status Pesanan", status_desc: "Masukkan Order ID kamu untuk cek status panel:",
+                status_btn: "Cek", status_not_found: "Order ID tidak ditemukan!",
+                status_package: "Paket", status_owner: "Pemilik", status_expired: "Aktif Hingga",
+                status_aktif: "AKTIF", status_proses: "PROSES", status_expired_badge: "EXPIRED",
+                testimoni_title: "Testimoni Pelanggan"
+            },
+            en: {
+                search_placeholder: "Search products, sales quotes...", active_badge: "Active!",
+                menu_home: "Home", menu_produk: "Products", menu_panel: "Pterodactyl Panel", menu_penjualan: "Sales Quotes",
+                theme_light: "Light", theme_dark: "Dark", color_btn: "Color Settings", link_wa: "WhatsApp Channel",
+                produk_title: "Our Products", produk_desc: "Click product to see full details:",
+                produk1_name: "Alight Motion 1 Year",
+                order_btn: "Order Now", detail_btn: "Detail", add_to_cart: "Add to Cart", order_now: "Order Now",
+                sales_title: "Best Sales Quotes", sales_desc: "A collection of promotional quotes to attract buyers:",
+                quote1: '"Quality is not an accident, it is a choice. Choose the best for yourself today!"',
+                quote2: '"Don\'t wait for tomorrow, because the best opportunity is today. Get it now before it\'s gone!"',
+                quote3: '"Prices may compete, but our quality is unmatched. Prove it yourself!"',
+                quote4: '"One click today, a lifetime of satisfaction. Order now!"',
+                search_no_result: "No results for", share_text: "Share Ananta Website", share_copied: "✅ Link copied successfully!",
+                chat_tooltip: "💬 Need help? Chat us!", modal_desc_title: "Product Description", modal_specs_title: "Product Information",
+                modal_stock: "Available Stock", modal_category: "Category", modal_condition: "Condition", modal_condition_value: "New & Original",
+                promo_text: "🔥 LIMITED PROMO 🔥", cd_days: "Days", cd_hours: "Hours", cd_minutes: "Minutes", cd_seconds: "Seconds",
+                cart_title: "Cart", cart_empty: "Your cart is empty", cart_empty_desc: "Let's pick some products first!",
+                cart_subtotal: "Subtotal", cart_discount: "Discount", cart_total: "Total", voucher_placeholder: "Voucher Code", voucher_apply: "Apply",
+                voucher_success: "✅ Voucher applied! Discount", voucher_error: "❌ Invalid voucher code!",
+                payment_title: "Payment Method", payment_bca: "BCA Transfer", payment_qris: "QRIS", payment_dana: "DANA", payment_cod: "COD",
+                checkout_btn: "Checkout via WhatsApp", checkout_empty: "Cart is empty!", checkout_payment: "Please select a payment method!",
+                remove: "Remove", badge_ssl: "SSL Secure", badge_verified: "Verified", badge_garansi: "Warranty", ulasan: "reviews",
+                panel_title: "Pterodactyl Panel", panel_hero_title: "PTERODACTYL PANEL",
+                panel_hero_desc: "Choose RAM package according to your needs. Fast, stable, and guaranteed!",
+                panel_desc: "Click a package to order directly via WhatsApp:", panel_info_title: "Panel Advantages",
+                panel_f1: "24-hour non-stop server", panel_f2: "Full panel & FTP access", panel_f3: "Anti lag & anti delay",
+                panel_f4: "100% money-back guarantee", panel_f5: "24/7 support ready to help",
+                per_bulan: "per month", order_wa: "Order via WhatsApp",
+                status_title: "Check Order Status", status_desc: "Enter your Order ID to check panel status:",
+                status_btn: "Check", status_not_found: "Order ID not found!",
+                status_package: "Package", status_owner: "Owner", status_expired: "Active Until",
+                status_aktif: "ACTIVE", status_proses: "PROCESSING", status_expired_badge: "EXPIRED",
+                testimoni_title: "Customer Testimonials"
+            }
+        };
+
+        // ================= RENDER STARS =================
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) html += '<i class="fas fa-star"></i>';
+                else if (i - 0.5 <= rating) html += '<i class="fas fa-star-half-alt"></i>';
+                else html += '<i class="fas fa-star empty"></i>';
+            }
+            return html;
+        }
+
+        // ================= RENDER PRODUK =================
+        function renderProducts() {
+            const list = document.getElementById('produkList');
+            if (!list) return;
+            const t = translations[currentLang];
+            list.innerHTML = products.map((p, i) => `
+                <div class="produk-item" onclick="openModal(${i})">
+                    <span class="diskon-badge">${p.diskon}</span>
+                    <img src="${p.image}" alt="${t['produk' + (i + 1) + '_name']}" class="produk-image">
+                    <div class="produk-body">
+                        <div class="produk-top">
+                            <div class="produk-icon"><i class="fas fa-film"></i></div>
+                            <div class="produk-info">
+                                <div class="produk-name">${t['produk' + (i + 1) + '_name']}</div>
+                                <div class="produk-price-row"><span class="produk-price-old">${p.priceOld}</span><span class="produk-price">${p.price}</span></div>
+                                <div class="produk-rating"><div class="produk-stars">${renderStars(p.rating)}</div><span class="produk-rating-text">${p.rating} (${p.reviewCount})</span></div>
+                            </div>
+                        </div>
+                        <div class="produk-actions">
+                            <button class="action-btn detail" onclick="event.stopPropagation(); openModal(${i})"><i class="fas fa-eye"></i><span>${t.detail_btn}</span></button>
+                            <button class="action-btn add-cart" onclick="event.stopPropagation(); addToCart(${i})"><i class="fas fa-cart-plus"></i><span>${t.add_to_cart}</span></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            setupScrollAnimation();
+        }
+
+        // ================= RENDER PANEL RAM =================
+        function renderRAMPackages() {
+            const grid = document.getElementById('ramGrid');
+            if (!grid) return;
+            const t = translations[currentLang];
+            grid.innerHTML = ramPackages.map((pkg, i) => `
+                <div class="ram-card ${pkg.badge === 'POPULER' ? 'populer' : pkg.badge === 'HOT' ? 'best-value' : ''}" onclick="orderRAM(${i})">
+                    ${pkg.badge ? `<span class="ram-badge ${pkg.badgeClass || ''}">${pkg.badge}</span>` : ''}
+                    <div class="ram-icon"><i class="fas ${pkg.icon}"></i></div>
+                    <div class="ram-name">${pkg.name}</div>
+                    <div class="ram-price">${pkg.price}<span>${t.per_bulan}</span></div>
+                </div>
+            `).join('');
+        }
+
+        // ================= RENDER TESTIMONI =================
+        function renderTestimonials() {
+            const list = document.getElementById('testimoniList');
+            if (!list) return;
+            list.innerHTML = testimonials.map(t => `
+                <div class="testimoni-card">
+                    <div class="testimoni-header">
+                        <div class="testimoni-avatar">${t.initial}</div>
+                        <div class="testimoni-info">
+                            <div class="testimoni-name">${t.name}</div>
+                            <div class="testimoni-stars">${renderStars(t.rating)}</div>
+                        </div>
+                    </div>
+                    <div class="testimoni-text">"${t.text}"</div>
+                    <div class="testimoni-date">${t.date}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================= ORDER RAM =================
+        function orderRAM(index) {
+            const pkg = ramPackages[index];
+            const t = translations[currentLang];
+            const message = `🖥️ *ORDER PANEL PTERODACTYL*\n\n` +
+                `📦 Paket: *${pkg.name}*\n` +
+                `💰 Harga: *${pkg.price}* ${t.per_bulan}\n\n` +
+                `Mohon konfirmasi pesanan saya ya 🙏`;
+            window.open(`https://wa.me/6283826963189?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // ================= CEK STATUS PESANAN =================
+        function checkStatus() {
+            const input = document.getElementById('statusInput').value.toUpperCase().trim();
+            const result = document.getElementById('statusResult');
+            const notFound = document.getElementById('statusNotFound');
+            const t = translations[currentLang];
+
+            if (!input) {
+                notFound.classList.remove('show');
+                result.classList.remove('show');
+                return;
+            }
+
+            if (orders[input]) {
+                const order = orders[input];
+                document.getElementById('statusOrderId').textContent = input;
+                document.getElementById('statusPackage').textContent = order.package;
+                document.getElementById('statusOwner').textContent = order.owner;
+                document.getElementById('statusExpired').textContent = order.expired;
+
+                const badge = document.getElementById('statusBadge');
+                badge.className = 'status-badge';
+                if (order.status === 'aktif') {
+                    badge.classList.add('aktif');
+                    badge.textContent = t.status_aktif;
+                } else if (order.status === 'proses') {
+                    badge.classList.add('proses');
+                    badge.textContent = t.status_proses;
+                } else {
+                    badge.classList.add('expired');
+                    badge.textContent = t.status_expired_badge;
+                }
+
+                result.classList.add('show');
+                notFound.classList.remove('show');
+            } else {
+                result.classList.remove('show');
+                notFound.classList.add('show');
+            }
+        }
+
+        function setupScrollAnimation() {
+            const items = document.querySelectorAll('.produk-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = Array.from(items).indexOf(entry.target);
+                        setTimeout(() => entry.target.classList.add('scroll-show'), index * 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            items.forEach(item => observer.observe(item));
+        }
+
+        // ================= MODAL DETAIL =================
+        function openModal(index) {
+            currentProductIndex = index;
+            const p = products[index]; const lang = currentLang; const t = translations[lang];
+            document.getElementById('modalImage').src = p.image;
+            document.getElementById('modalDiskon').textContent = p.diskon;
+            document.getElementById('modalTitle').textContent = t['produk' + (index + 1) + '_name'];
+            document.getElementById('modalPriceOld').textContent = p.priceOld;
+            document.getElementById('modalPrice').textContent = p.price;
+            document.getElementById('modalDescription').textContent = p.desc[lang];
+            document.getElementById('modalStock').textContent = p.stock;
+            document.getElementById('modalCategory').textContent = p.category[lang];
+            document.getElementById('modalOrderBtn').href = p.wa;
+            document.getElementById('modalStars').innerHTML = renderStars(p.rating);
+            document.getElementById('modalRatingScore').textContent = p.rating;
+            document.getElementById('modalRatingInfo').textContent = `(${p.reviewCount} ${t.ulasan})`;
+            document.getElementById('modalOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event && event.target.id !== 'modalOverlay') return;
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function addToCartFromModal() { addToCart(currentProductIndex); closeModal(); }
+
+        // ================= KERANJANG =================
+        function saveCart() { localStorage.setItem('ananta-cart', JSON.stringify(cart)); }
+
+        function addToCart(index) {
+            const existing = cart.find(item => item.id === index);
+            if (existing) existing.qty += 1;
+            else cart.push({ id: index, qty: 1 });
+            saveCart(); updateCartBadge(); showAddedFeedback(index);
+        }
+
+        function showAddedFeedback(index) {
+            const items = document.querySelectorAll('.produk-item');
+            if (items[index]) {
+                const btn = items[index].querySelector('.add-cart');
+                if (btn) {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i><span>✓</span>';
+                    btn.classList.add('added');
+                    setTimeout(() => { btn.innerHTML = originalHTML; btn.classList.remove('added'); }, 1200);
+                }
+            }
+        }
+
+        function updateCartBadge() {
+            const total = cart.reduce((sum, item) => sum + item.qty, 0);
+            const badge = document.getElementById('cartBadge');
+            if (!badge) return;
+            if (total > 0) { badge.textContent = total; badge.classList.add('show'); }
+            else badge.classList.remove('show');
+        }
+
+        function openCart() { renderCart(); document.getElementById('cartOverlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
+        function closeCart(event) {
+            if (event && event.target.id !== 'cartOverlay') return;
+            document.getElementById('cartOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function renderCart() {
+            const body = document.getElementById('cartBody');
+            if (!body) return;
+            const t = translations[currentLang];
+            if (cart.length === 0) {
+                body.innerHTML = `<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p style="font-weight:700; font-size:16px; margin-bottom:8px;">${t.cart_empty}</p><p style="font-size:14px;">${t.cart_empty_desc}</p></div>`;
+                return;
+            }
+            let subtotal = 0;
+            const itemsHTML = cart.map((item, idx) => {
+                const p = products[item.id];
+                const itemTotal = p.priceNum * item.qty;
+                subtotal += itemTotal;
+                return `<div class="cart-item"><img src="${p.image}" class="cart-item-img" alt=""><div class="cart-item-info"><div class="cart-item-name">${translations[currentLang]['produk' + (item.id + 1) + '_name']}</div><div class="cart-item-price">${p.price} × ${item.qty} = Rp ${itemTotal.toLocaleString('id-ID')}</div><div class="cart-qty"><button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button><span class="qty-value">${item.qty}</span><button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button></div></div><button class="cart-item-remove" onclick="removeItem(${idx})"><i class="fas fa-trash"></i></button></div>`;
+            }).join('');
+            const discount = Math.round(subtotal * appliedVoucher / 100);
+            const total = subtotal - discount;
+            body.innerHTML = `${itemsHTML}<div class="cart-summary"><div class="cart-summary-row"><span>${t.cart_subtotal}</span><span>Rp ${subtotal.toLocaleString('id-ID')}</span></div>${appliedVoucher > 0 ? `<div class="cart-summary-row" style="color:#00d9a3;"><span>${t.cart_discount} (${appliedVoucherCode} - ${appliedVoucher}%)</span><span>-Rp ${discount.toLocaleString('id-ID')}</span></div>` : ''}<div class="cart-summary-row total"><span>${t.cart_total}</span><span>Rp ${total.toLocaleString('id-ID')}</span></div></div><div class="voucher-section"><div class="voucher-input-row"><input type="text" class="voucher-input" id="voucherInput" placeholder="${t.voucher_placeholder}"><button class="voucher-btn" onclick="applyVoucher()">${t.voucher_apply}</button></div><div class="voucher-message" id="voucherMessage"></div></div><div class="payment-section"><div class="payment-title">${t.payment_title}</div><div class="payment-options"><button class="payment-option ${selectedPayment === 'BCA' ? 'selected' : ''}" onclick="selectPayment('BCA')"><i class="fas fa-university"></i><span class="payment-option-name">${t.payment_bca}</span></button><button class="payment-option ${selectedPayment === 'QRIS' ? 'selected' : ''}" onclick="selectPayment('QRIS')"><i class="fas fa-qrcode"></i><span class="payment-option-name">${t.payment_qris}</span></button><button class="payment-option ${selectedPayment === 'DANA' ? 'selected' : ''}" onclick="selectPayment('DANA')"><i class="fas fa-wallet"></i><span class="payment-option-name">${t.payment_dana}</span></button><button class="payment-option ${selectedPayment === 'COD' ? 'selected' : ''}" onclick="selectPayment('COD')"><i class="fas fa-truck"></i><span class="payment-option-name">${t.payment_cod}</span></button></div></div><button class="checkout-btn" onclick="checkout()"><i class="fab fa-whatsapp"></i><span>${t.checkout_btn}</span></button>`;
+        }
+
+        function changeQty(index, delta) { cart[index].qty += delta; if (cart[index].qty <= 0) cart.splice(index, 1); saveCart(); updateCartBadge(); renderCart(); }
+        function removeItem(index) { cart.splice(index, 1); saveCart(); updateCartBadge(); renderCart(); }
+
+        function applyVoucher() {
+            const input = document.getElementById('voucherInput').value.toUpperCase().trim();
+            const message = document.getElementById('voucherMessage');
+            const t = translations[currentLang];
+            if (vouchers[input]) {
+                appliedVoucher = vouchers[input]; appliedVoucherCode = input;
+                message.className = 'voucher-message success';
+                message.textContent = `${t.voucher_success} ${appliedVoucher}%`;
+                renderCart();
+            } else {
+                message.className = 'voucher-message error';
+                message.textContent = t.voucher_error;
+            }
+        }
+
+        function selectPayment(method) { selectedPayment = method; renderCart(); }
+
+        function checkout() {
+            const t = translations[currentLang];
+            if (cart.length === 0) { alert(t.checkout_empty); return; }
+            if (!selectedPayment) { alert(t.checkout_payment); return; }
+            let subtotal = 0;
+            let message = '🛒 *PESANAN BARU - ANANTA*\n\n';
+            cart.forEach((item) => {
+                const p = products[item.id];
+                const itemTotal = p.priceNum * item.qty;
+                subtotal += itemTotal;
+                message += `▪️ ${translations[currentLang]['produk' + (item.id + 1) + '_name']}\n   ${item.qty} × ${p.price} = Rp ${itemTotal.toLocaleString('id-ID')}\n\n`;
+            });
+            const discount = Math.round(subtotal * appliedVoucher / 100);
+            const total = subtotal - discount;
+            message += `━━━━━━━━━━━━━━━\nSubtotal: Rp ${subtotal.toLocaleString('id-ID')}\n`;
+            if (appliedVoucher > 0) message += `Diskon (${appliedVoucherCode}): -Rp ${discount.toLocaleString('id-ID')}\n`;
+            message += `*TOTAL: Rp ${total.toLocaleString('id-ID')}*\n\n💳 Metode Pembayaran: *${selectedPayment}*\n\nMohon konfirmasi pesanan saya ya 🙏`;
+            window.open(`https://wa.me/6283826963189?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function renderAll() { renderProducts(); renderRAMPackages(); renderTestimonials(); updateCartBadge(); if (document.getElementById('cartOverlay') && document.getElementById('cartOverlay').classList.contains('show')) renderCart(); }
+
+        // ================= SET LANGUAGE =================
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ananta-lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    const child = el.querySelector('.sales-quote-author');
+                    if (child) el.innerHTML = translations[lang][key] + ' <span class="sales-quote-author">— Ananta</span>';
+                    else el.innerHTML = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+            const langIdEl = document.getElementById('langId');
+            const langEnEl = document.getElementById('langEn');
+            if (langIdEl) langIdEl.classList.toggle('active', lang === 'id');
+            if (langEnEl) langEnEl.classList.toggle('active', lang === 'en');
+            document.documentElement.lang = lang;
+            const tooltip = document.getElementById('chatTooltip');
+            if (tooltip) tooltip.textContent = translations[lang].chat_tooltip;
+            if (document.getElementById('modalOverlay') && document.getElementById('modalOverlay').classList.contains('show')) openModal(currentProductIndex);
+            renderAll();
+            if (document.getElementById('searchInput').value.trim()) handleSearch();
+        }
+
+        function shareWebsite() {
+            const t = translations[currentLang];
+            const url = window.location.href;
+            if (!url.startsWith('http')) { copyToClipboard(url, t.share_copied); return; }
+            const shareData = { title: 'ANANTA', text: t.share_text, url: url };
+            if (navigator.share) navigator.share(shareData).catch(err => console.log('Share dibatalkan'));
+            else copyToClipboard(url, t.share_copied);
+        }
+
+        function copyToClipboard(text, successMessage) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => alert(successMessage)).catch(() => fallbackCopy(text, successMessage));
+            } else fallbackCopy(text, successMessage);
+        }
+
+        function fallbackCopy(text, successMessage) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try { document.execCommand('copy'); alert(successMessage); }
+            catch (err) { prompt('Copy link ini:', text); }
+            document.body.removeChild(textarea);
+        }
+
+        function getSearchData() {
+            const t = translations[currentLang];
+            const data = [
+                { name: t.menu_home, icon: 'fa-home', page: 'home' },
+                { name: t.menu_produk, icon: 'fa-shopping-cart', page: 'produk' },
+                { name: t.menu_panel, icon: 'fa-server', page: 'panel' },
+                { name: t.menu_penjualan, icon: 'fa-quote-left', page: 'penjualan' },
+                { name: t.produk1_name, icon: 'fa-film', page: 'produk' },
+                { name: t.link_wa, icon: 'fa-whatsapp', url: 'https://whatsapp.com/channel/0029Vb6XtueHrDZov63eGV1g' },
+                { name: 'Instagram', icon: 'fa-instagram', url: 'https://www.instagram.com/adnnrfndi' },
+                { name: 'TikTok', icon: 'fa-tiktok', url: 'https://www.tiktok.com/@naan.nn1' },
+                { name: 'YouTube', icon: 'fa-youtube', url: 'https://www.youtube.com/@Vienna-s3b' },
+            ];
+            ramPackages.forEach(pkg => {
+                data.push({ name: pkg.name + ' - ' + pkg.price, icon: 'fa-memory', page: 'panel' });
+            });
+            return data;
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsBox = document.getElementById('searchResults');
+            const clearBtn = document.getElementById('clearBtn');
+            const t = translations[currentLang];
+            if (query.length > 0) clearBtn.style.display = 'block';
+            else { clearBtn.style.display = 'none'; resultsBox.classList.remove('show'); return; }
+            const results = getSearchData().filter(item => item.name.toLowerCase().includes(query));
+            if (results.length > 0) {
+                resultsBox.innerHTML = results.map(item => {
+                    const action = item.url ? `window.open('${item.url}', '_blank')` : `goToPage('${item.page}')`;
+                    return `<div class="search-result-item" onclick="${action}"><i class="fas ${item.icon}"></i><span>${item.name}</span></div>`;
+                }).join('');
+            } else {
+                resultsBox.innerHTML = '<div class="search-empty">🔍 ' + t.search_no_result + ' "' + query + '"</div>';
+            }
+            resultsBox.classList.add('show');
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearBtn').style.display = 'none';
+            document.getElementById('searchResults').classList.remove('show');
+        }
+
+        function goToPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageName).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const index = ['home', 'produk', 'panel', 'penjualan'].indexOf(pageName);
+            if (index >= 0) document.querySelectorAll('.nav-item')[index].classList.add('active');
+            clearSearch();
+        }
+
+        document.addEventListener('click', function(e) {
+            const searchBar = document.querySelector('.search-bar');
+            const resultsBox = document.getElementById('searchResults');
+            if (searchBar && resultsBox && !searchBar.contains(e.target) && !resultsBox.contains(e.target)) resultsBox.classList.remove('show');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const mo = document.getElementById('modalOverlay');
+                const co = document.getElementById('cartOverlay');
+                if (mo) mo.classList.remove('show');
+                if (co) co.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            if (e.key === 'Enter' && document.activeElement.id === 'statusInput') {
+                checkStatus();
+            }
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        function showPage(pageName, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageName).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            btn.classList.add('active');
+            toggleSidebar();
+            if (pageName === 'produk') setTimeout(setupScrollAnimation, 100);
+            if (pageName === 'panel') setTimeout(setupScrollAnimation, 100);
+        }
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleColorPicker() { document.getElementById('colorPicker').classList.toggle('show'); }
+
+        function setAccent(color) {
+            document.documentElement.style.setProperty('--accent', color);
+            localStorage.setItem('ananta-accent', color);
+        }
+
+        const savedColor = localStorage.getItem('ananta-accent');
+        if (savedColor) document.documentElement.style.setProperty('--accent', savedColor);
+
+        setLanguage(currentLang);
+
+        setTimeout(() => {
+            const tooltip = document.getElementById('chatTooltip');
+            if (tooltip) {
+                tooltip.style.transition = 'opacity 0.5s ease';
+                tooltip.style.opacity = '0';
+                setTimeout(() => tooltip.style.display = 'none', 500);
+            }
+        }, 8000);
+    </script>
+
+</body>
+</html>
