@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ananta — Aplikasi & Layanan Digital</title>
     <meta name="description" content="Temukan aplikasi premium dan layanan digital dari Ananta dengan pemesanan mudah dan dukungan cepat.">
-    <meta name="theme-color" content="#f5f5f7">
+    <meta name="theme-color" content="#000000">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -513,15 +513,34 @@
             border: 1px solid rgba(60, 60, 67, 0.1);
             border-radius: 15px;
             background: var(--bg-secondary);
+            color: var(--text-primary);
             box-shadow: 0 2px 8px rgba(29, 29, 31, 0.04);
         }
-        body:not(.light-mode) .link-box { border-color: var(--border-color); }
+        body:not(.light-mode) .link-box {
+            border-color: var(--border-color);
+            background: #1c1c1e;
+            color: #f5f5f7;
+        }
+        .platform-name {
+            display: inline-flex;
+            align-items: center;
+            min-width: 0;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+        body:not(.light-mode) .platform-name { color: #f5f5f7; }
+        body:not(.light-mode) .tt-bg {
+            background: #2c2c2e;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
         .link-box:hover {
             transform: translateY(-1px);
             border-color: rgba(0, 122, 255, 0.25);
             background: var(--bg-secondary);
             box-shadow: 0 6px 16px rgba(29, 29, 31, 0.08);
         }
+        body:not(.light-mode) .link-box:hover { background: #2c2c2e; }
         .link-box::before { content: none; }
         .link-box:hover .icon-wrapper { transform: none; }
         .icon-wrapper { width: 40px; height: 40px; margin-right: 12px; border-radius: 12px; font-size: 20px; box-shadow: none; }
@@ -670,22 +689,35 @@
 
         @media (max-width: 480px) {
             body { padding-right: 12px; padding-left: 12px; }
-            .top-bar { padding-right: 12px; padding-left: 12px; gap: 7px; }
-            .menu-btn, .share-btn, .cart-btn { width: 34px; height: 36px; }
-            .search-bar { padding: 0 10px; }
-            .container, .page-card { padding: 18px; border-radius: 20px; }
+            .top-bar { padding-right: 12px; padding-left: 12px; }
+            .container,
+            .page-card { padding: 18px; border-radius: 20px; }
             .banner { height: 112px; }
-            .produk-image { height: 148px; }
-            .produk-body { padding: 14px; }
-            .live-chat-tooltip { right: 82px; bottom: max(27px, env(safe-area-inset-bottom)); }
+            .trust-badges { gap: 6px; }
+            .trust-badge { padding-right: 4px; padding-left: 4px; }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        @media (max-width: 380px) {
+            body { padding-top: calc(66px + env(safe-area-inset-top)); padding-right: 10px; padding-left: 10px; }
+            .container,
+            .page-card { padding: 16px; }
+            .header-section { margin-bottom: 12px; }
+            .banner { height: 96px; }
+            .profile-logo { width: 74px; height: 74px; margin-top: -37px; }
+            .title { margin-top: 8px; font-size: 21px; }
+            .links-container { gap: 7px; }
+            .link-box { min-height: 50px; padding: 7px 12px; }
+            .icon-wrapper { width: 34px; height: 34px; margin-right: 11px; font-size: 18px; }
+            .platform-name { font-size: 15px; font-weight: 700; }
+            .trust-badges { margin-top: 12px; }
+            .trust-badge { min-height: 54px; padding: 6px 3px; }
+            .trust-badge-text { font-size: 8px; }
+            .credit { margin-top: 12px; }
         }
-    </style>
+
+  </style>
 </head>
-<body class="light-mode">
+<body>
 
     <div class="top-bar">
         <button class="menu-btn" type="button" aria-label="Buka navigasi" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -723,7 +755,7 @@
         <div class="divider"></div>
         <div class="theme-toggle-wrapper">
             <span data-i18n="theme_light">Lampu</span>
-            <div class="theme-toggle" role="switch" aria-label="Tema terang" aria-checked="true" tabindex="0" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleTheme(); }" onclick="toggleTheme()"></div>
+            <div class="theme-toggle" role="switch" aria-label="Tema terang" aria-checked="false" tabindex="0" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleTheme(); }" onclick="toggleTheme()"></div>
             <span data-i18n="theme_dark">Gelap</span>
         </div>
         <button class="color-btn" onclick="toggleColorPicker()"><i class="fas fa-frog"></i><span data-i18n="color_btn">Atur Warna</span></button>
