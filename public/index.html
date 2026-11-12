@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANANTA</title>
+    <title>Ananta — Aplikasi & Layanan Digital</title>
+    <meta name="description" content="Temukan aplikasi premium dan layanan digital dari Ananta dengan pemesanan mudah dan dukungan cepat.">
+    <meta name="theme-color" content="#f5f5f7">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -307,19 +309,393 @@
         .status-value { color: var(--text-primary); font-weight: 700; text-align: right; }
         .status-not-found { text-align: center; padding: 15px; color: #ff4757; font-size: 13px; font-weight: 600; display: none; }
         .status-not-found.show { display: block; }
+        :root {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --accent: #007aff;
+            --accent-dark: #0056b3;
+            --border-color: rgba(60, 60, 67, 0.16);
+            --surface-muted: #f2f2f7;
+            --soft-shadow: 0 12px 32px rgba(29, 29, 31, 0.07);
+        }
+
+        body {
+            display: block;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: calc(76px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            color-scheme: light;
+        }
+
+        body.light-mode {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --accent: #007aff;
+            --accent-dark: #0056b3;
+            --border-color: rgba(60, 60, 67, 0.16);
+            --surface-muted: #f2f2f7;
+        }
+
+        body:not(.light-mode) {
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --bg-card: #1c1c1e;
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --accent: #0a84ff;
+            --accent-dark: #409cff;
+            --border-color: rgba(84, 84, 88, 0.65);
+            --surface-muted: #2c2c2e;
+            color-scheme: dark;
+        }
+
+        body.light-mode,
+        body:not(.light-mode) {
+            background-image: none;
+        }
+
+        .top-bar {
+            padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+            gap: 10px;
+            background: rgba(245, 245, 247, 0.88);
+            border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        body:not(.light-mode) .top-bar {
+            background: rgba(28, 28, 30, 0.88);
+            border-bottom-color: var(--border-color);
+            box-shadow: none;
+        }
+
+        .menu-btn,
+        .share-btn,
+        .cart-btn {
+            flex: 0 0 auto;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 12px;
+            color: var(--accent);
+            font-size: 18px;
+            transition: background-color 160ms ease, transform 160ms ease;
+        }
+
+        .menu-btn:hover,
+        .share-btn:hover,
+        .cart-btn:hover {
+            color: var(--accent);
+            background: rgba(0, 122, 255, 0.09);
+        }
+
+        .search-bar {
+            min-width: 0;
+            height: 38px;
+            padding: 0 12px;
+            border: 0;
+            border-radius: 12px;
+            background: #e9e9eb;
+        }
+
+        body:not(.light-mode) .search-bar { background: #2c2c2e; }
+        .search-bar input { min-width: 0; font-size: 14px; }
+        .search-bar input::placeholder { color: #8e8e93; }
+        .search-results {
+            top: calc(64px + env(safe-area-inset-top));
+            width: calc(100% - 32px);
+            max-width: 480px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--bg-secondary);
+            box-shadow: var(--soft-shadow);
+        }
+
+        .sidebar {
+            width: min(320px, calc(100vw - 48px));
+            padding: calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+            background: rgba(255, 255, 255, 0.96);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 18px 0 50px rgba(0, 0, 0, 0.1);
+        }
+
+        body:not(.light-mode) .sidebar { background: rgba(28, 28, 30, 0.97); }
+        .sidebar-title {
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 26px;
+            font-weight: 750;
+            letter-spacing: -0.7px;
+            text-shadow: none;
+        }
+
+        .active-badge {
+            color: #248a3d;
+            background: rgba(52, 199, 89, 0.12);
+            border: 0;
+            padding: 5px 11px;
+        }
+
+        .nav-menu { gap: 4px; }
+        .nav-item { padding: 13px 14px; border-radius: 12px; font-size: 15px; }
+        .nav-item i { color: var(--text-secondary); }
+        .nav-item.active { color: var(--accent); background: rgba(0, 122, 255, 0.1); }
+        .nav-item.active i { color: var(--accent); }
+        .nav-item:hover:not(.active) { background: var(--surface-muted); }
+        body:not(.light-mode) .nav-item:hover:not(.active) { background: #2c2c2e; }
+        .divider { background: var(--border-color); }
+
+        .theme-toggle { background: var(--surface-muted); border-color: transparent; }
+        .theme-toggle::after { background: #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); }
+        body.light-mode .theme-toggle { background: #34c759; }
+        body:not(.light-mode) .theme-toggle::after { transform: translateX(30px); }
+        .color-btn,
+        .lang-btn { background: var(--surface-muted); border-color: transparent; border-radius: 12px; }
+        .lang-btn.active { background: var(--accent); color: #ffffff; }
+        .color-btn:hover { background: var(--accent); }
+        .color-picker { background: var(--surface-muted); border-color: var(--border-color); }
+        .overlay { background: rgba(0, 0, 0, 0.32); backdrop-filter: blur(4px); }
+
+        .page,
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .container,
+        .page-card {
+            padding: 22px;
+            border: 1px solid rgba(60, 60, 67, 0.08);
+            border-radius: 22px;
+            background: var(--bg-secondary);
+            box-shadow: var(--soft-shadow);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        body:not(.light-mode) .container,
+        body:not(.light-mode) .page-card {
+            border-color: var(--border-color);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .container { margin-top: 0; }
+        .header-section { margin-bottom: 22px; }
+        .banner { height: 124px; border-radius: 16px; box-shadow: none; }
+        .profile-logo {
+            width: 88px;
+            height: 88px;
+            margin-top: -44px;
+            border: 4px solid var(--bg-secondary);
+            box-shadow: 0 5px 18px rgba(29, 29, 31, 0.16);
+            animation: none;
+        }
+        .title {
+            margin-top: 12px;
+            color: var(--text-primary);
+            font-size: 24px;
+            letter-spacing: 1.5px;
+            text-shadow: none;
+        }
+
+        .links-container { gap: 10px; }
+        .link-box {
+            min-height: 62px;
+            padding: 10px 13px;
+            border: 1px solid rgba(60, 60, 67, 0.1);
+            border-radius: 15px;
+            background: var(--bg-secondary);
+            box-shadow: 0 2px 8px rgba(29, 29, 31, 0.04);
+        }
+        body:not(.light-mode) .link-box { border-color: var(--border-color); }
+        .link-box:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 122, 255, 0.25);
+            background: var(--bg-secondary);
+            box-shadow: 0 6px 16px rgba(29, 29, 31, 0.08);
+        }
+        .link-box::before { content: none; }
+        .link-box:hover .icon-wrapper { transform: none; }
+        .icon-wrapper { width: 40px; height: 40px; margin-right: 12px; border-radius: 12px; font-size: 20px; box-shadow: none; }
+        .trust-badges { gap: 8px; margin-top: 16px; }
+        .trust-badge { min-height: 66px; padding: 9px 5px; border-radius: 13px; background: var(--surface-muted); border-color: transparent; }
+        .trust-badge:hover { transform: none; box-shadow: none; }
+        .trust-badge i { font-size: 17px; }
+        .trust-badge.ssl i { color: #34c759; }
+        .trust-badge.verified i { color: var(--accent); }
+        .trust-badge.garansi i { color: #ff9f0a; }
+        .trust-badge-text { font-size: 9px; letter-spacing: 0.25px; }
+        .credit { margin-top: 18px; font-size: 12px; letter-spacing: 0.2px; }
+        .credit strong { color: var(--accent); }
+
+        .page { margin-top: 0; }
+        .page-card { padding: 22px; }
+        .page-card h2 { color: var(--text-primary); font-size: 21px; letter-spacing: -0.35px; }
+        .page-card h2 i { color: var(--accent); }
+        .page-card p { color: var(--text-secondary); font-size: 14px; }
+        .promo-banner {
+            padding: 14px;
+            border: 1px solid rgba(0, 122, 255, 0.12);
+            border-radius: 16px;
+            background: #f2f7ff;
+        }
+        body:not(.light-mode) .promo-banner { background: #1c2a3a; border-color: rgba(10, 132, 255, 0.25); }
+        .promo-text { color: var(--accent); animation: none; letter-spacing: 0.4px; }
+        .countdown-box { min-width: 48px; padding: 9px 7px; border: 0; border-radius: 10px; background: var(--bg-secondary); }
+        .countdown-value { color: var(--accent); font-size: 17px; }
+        .countdown-label { letter-spacing: 0.5px; }
+        .produk-list { gap: 13px; }
+        .produk-item {
+            opacity: 1;
+            transform: none;
+            border-color: rgba(60, 60, 67, 0.12);
+            border-radius: 17px;
+            background: var(--bg-secondary);
+            box-shadow: 0 3px 12px rgba(29, 29, 31, 0.045);
+        }
+        body:not(.light-mode) .produk-item { border-color: var(--border-color); box-shadow: none; }
+        .produk-item.scroll-show { animation: none; }
+        .produk-item:hover { transform: translateY(-2px); box-shadow: var(--soft-shadow); }
+        .produk-image { height: 166px; }
+        .diskon-badge { background: #ff3b30; border-radius: 10px; box-shadow: none; animation: none; letter-spacing: 0; }
+        .produk-body { padding: 16px; }
+        .produk-top { gap: 12px; }
+        .produk-icon { width: 46px; height: 46px; border-radius: 13px; background: var(--accent); box-shadow: none; }
+        .produk-name { letter-spacing: -0.2px; }
+        .produk-price { color: var(--accent); }
+        .action-btn { border-radius: 12px; letter-spacing: 0; transition: background-color 160ms ease, transform 160ms ease; }
+        .action-btn.detail { background: var(--surface-muted); border-color: transparent; color: var(--text-primary); }
+        .action-btn.detail:hover { background: #e5f1ff; color: var(--accent); border-color: transparent; }
+        body:not(.light-mode) .action-btn.detail:hover { background: #263b51; }
+        .action-btn.add-cart { background: var(--accent); box-shadow: none; }
+        .action-btn.add-cart:hover { transform: translateY(-1px); box-shadow: none; background: var(--accent-dark); }
+
+        .panel-hero {
+            border: 1px solid rgba(0, 122, 255, 0.15);
+            border-radius: 17px;
+            background: #f2f7ff;
+        }
+        body:not(.light-mode) .panel-hero { background: #1c2a3a; border-color: rgba(10, 132, 255, 0.25); }
+        .panel-hero::before { content: none; }
+        .panel-hero-icon { color: var(--accent); animation: none; }
+        .panel-hero-title { letter-spacing: 0; }
+        .ram-card,
+        .panel-info,
+        .testimoni-card,
+        .status-result {
+            border-color: rgba(60, 60, 67, 0.12);
+            border-radius: 14px;
+            background: var(--surface-muted);
+            box-shadow: none;
+        }
+        body:not(.light-mode) .ram-card,
+        body:not(.light-mode) .panel-info,
+        body:not(.light-mode) .testimoni-card,
+        body:not(.light-mode) .status-result { border-color: var(--border-color); }
+        .ram-card:hover,
+        .testimoni-card:hover { transform: none; border-color: rgba(0, 122, 255, 0.35); box-shadow: none; }
+        .ram-card.populer,
+        .ram-card.best-value { border-color: rgba(0, 122, 255, 0.35); }
+        .ram-badge,
+        .ram-badge.hot,
+        .ram-badge.reseller { background: var(--accent); }
+        .ram-price { color: var(--accent); text-shadow: none; }
+        .panel-info-title,
+        .testimoni-title,
+        .status-title { color: var(--text-primary); letter-spacing: 0; }
+        .panel-info-item i { color: #34c759; }
+        .testimoni-avatar { background: var(--accent); }
+        .status-badge.aktif { color: #248a3d; background: rgba(52, 199, 89, 0.12); border-color: rgba(52, 199, 89, 0.25); }
+        .status-badge.proses { color: #b76e00; background: rgba(255, 159, 10, 0.12); border-color: rgba(255, 159, 10, 0.25); }
+        .status-badge.expired { color: #d70015; background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.2); }
+
+        .live-chat {
+            right: max(18px, env(safe-area-inset-right));
+            bottom: max(18px, env(safe-area-inset-bottom));
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: #34c759;
+            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.24);
+            font-size: 24px;
+            animation: none;
+        }
+        .live-chat:hover { transform: translateY(-2px); }
+        .live-chat-tooltip { border-radius: 12px; box-shadow: var(--soft-shadow); }
+
+        .modal-overlay { background: rgba(18, 18, 20, 0.38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal-content,
+        .cart-modal-content {
+            border: 1px solid rgba(60, 60, 67, 0.12);
+            border-radius: 22px;
+            background: var(--bg-secondary);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
+        }
+        .modal-image { border-radius: 22px 22px 0 0; }
+        .modal-body { padding: 22px; }
+        .modal-title { font-size: 22px; letter-spacing: -0.35px; }
+        .modal-price { color: var(--accent); text-shadow: none; }
+        .modal-description-title,
+        .cart-header h2 { color: var(--text-primary); letter-spacing: 0; }
+        .modal-specs,
+        .modal-trust-item,
+        .cart-item,
+        .cart-summary { border-color: var(--border-color); background: var(--surface-muted); }
+        .modal-trust-item.ssl i { color: #34c759; }
+        .modal-trust-item.verified i { color: var(--accent); }
+        .modal-trust-item.garansi i { color: #ff9f0a; }
+        .modal-close { background: var(--surface-muted); box-shadow: none; }
+        .modal-close:hover { color: var(--text-primary); background: #e5e5ea; transform: none; }
+        body:not(.light-mode) .modal-close:hover { background: #3a3a3c; }
+        .qty-btn,
+        .voucher-input,
+        .status-input,
+        .payment-option { border-color: var(--border-color); background: var(--bg-secondary); }
+        .qty-btn:hover,
+        .voucher-btn,
+        .status-btn { border-color: transparent; background: var(--accent); }
+        .payment-option.selected { border-color: var(--accent); background: rgba(0, 122, 255, 0.08); }
+        .payment-option i { color: var(--accent); }
+        .checkout-btn { background: var(--accent); border-radius: 13px; box-shadow: none; }
+        .checkout-btn:hover { transform: translateY(-1px); box-shadow: none; background: var(--accent-dark); }
+        :focus-visible { outline: 3px solid rgba(0, 122, 255, 0.42); outline-offset: 2px; }
+
+        @media (max-width: 480px) {
+            body { padding-right: 12px; padding-left: 12px; }
+            .top-bar { padding-right: 12px; padding-left: 12px; gap: 7px; }
+            .menu-btn, .share-btn, .cart-btn { width: 34px; height: 36px; }
+            .search-bar { padding: 0 10px; }
+            .container, .page-card { padding: 18px; border-radius: 20px; }
+            .banner { height: 112px; }
+            .produk-image { height: 148px; }
+            .produk-body { padding: 14px; }
+            .live-chat-tooltip { right: 82px; bottom: max(27px, env(safe-area-inset-bottom)); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
-<body>
+<body class="light-mode">
 
     <div class="top-bar">
-        <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <button class="menu-btn" type="button" aria-label="Buka navigasi" aria-controls="sidebar" aria-expanded="false" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Cari produk, kata penjualan..." oninput="handleSearch()" onfocus="handleSearch()">
+            <input type="text" id="searchInput" aria-label="Cari produk atau layanan" data-i18n-placeholder="search_placeholder" placeholder="Cari produk, kata penjualan..." oninput="handleSearch()" onfocus="handleSearch()">
             <i class="fas fa-times" id="clearBtn" style="cursor:pointer; display:none;" onclick="clearSearch()"></i>
         </div>
-        <button class="share-btn" onclick="shareWebsite()"><i class="fas fa-share-alt"></i></button>
-        <button class="cart-btn" onclick="openCart()">
+        <button class="share-btn" type="button" aria-label="Bagikan situs" onclick="shareWebsite()"><i class="fas fa-share-alt"></i></button>
+        <button class="cart-btn" type="button" aria-label="Buka keranjang belanja" onclick="openCart()">
             <i class="fas fa-shopping-bag"></i>
             <span class="cart-badge" id="cartBadge">0</span>
         </button>
@@ -347,7 +723,7 @@
         <div class="divider"></div>
         <div class="theme-toggle-wrapper">
             <span data-i18n="theme_light">Lampu</span>
-            <div class="theme-toggle" onclick="toggleTheme()"></div>
+            <div class="theme-toggle" role="switch" aria-label="Tema terang" aria-checked="true" tabindex="0" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleTheme(); }" onclick="toggleTheme()"></div>
             <span data-i18n="theme_dark">Gelap</span>
         </div>
         <button class="color-btn" onclick="toggleColorPicker()"><i class="fas fa-frog"></i><span data-i18n="color_btn">Atur Warna</span></button>
@@ -487,13 +863,13 @@
     </div>
 
     <div class="live-chat-tooltip" id="chatTooltip">💬 Butuh bantuan? Chat kami!</div>
-    <a href="https://wa.me/6283826963189?text=Halo%20Ananta%2C%20saya%20ingin%20bertanya" target="_blank" class="live-chat" id="liveChat"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://wa.me/6283826963189?text=Halo%20Ananta%2C%20saya%20ingin%20bertanya" target="_blank" rel="noopener noreferrer" aria-label="Chat Ananta melalui WhatsApp" class="live-chat" id="liveChat"><i class="fab fa-whatsapp"></i></a>
 
     <!-- MODAL DETAIL PRODUK -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-badge-container"><span class="diskon-badge" id="modalDiskon">PROMO 50%</span></div>
-            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <button class="modal-close" type="button" aria-label="Tutup detail produk" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <img src="" alt="Detail Produk" class="modal-image" id="modalImage">
             <div class="modal-body">
                 <h2 class="modal-title" id="modalTitle">Alight Motion 1 Tahun</h2>
@@ -532,7 +908,7 @@
         <div class="cart-modal-content" onclick="event.stopPropagation()">
             <div class="cart-header">
                 <h2><i class="fas fa-shopping-bag"></i> <span data-i18n="cart_title">Keranjang</span></h2>
-                <button class="modal-close" style="position:static;" onclick="closeCart()"><i class="fas fa-times"></i></button>
+                <button class="modal-close" type="button" aria-label="Tutup keranjang" style="position:static;" onclick="closeCart()"><i class="fas fa-times"></i></button>
             </div>
             <div class="cart-body" id="cartBody"></div>
         </div>
@@ -1074,8 +1450,10 @@
         });
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
             document.getElementById('overlay').classList.toggle('show');
+            document.querySelector('.menu-btn').setAttribute('aria-expanded', sidebar.classList.contains('open'));
         }
 
         function showPage(pageName, btn) {
@@ -1088,7 +1466,10 @@
             if (pageName === 'panel') setTimeout(setupScrollAnimation, 100);
         }
 
-        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            document.querySelector('.theme-toggle').setAttribute('aria-checked', document.body.classList.contains('light-mode'));
+        }
         function toggleColorPicker() { document.getElementById('colorPicker').classList.toggle('show'); }
 
         function setAccent(color) {
