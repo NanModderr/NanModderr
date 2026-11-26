@@ -137,6 +137,10 @@
         .countdown-value { font-size: 18px; font-weight: 800; color: var(--accent); line-height: 1; }
         .countdown-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
         .produk-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+  .produk-empty-state { align-items: center; background: var(--bg-primary); border: 1px dashed var(--border-color); border-radius: 18px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px; grid-column: 1 / -1; margin: 0 auto; max-width: 680px; padding: 32px 20px; text-align: center; width: 100%; }
+  .produk-empty-state i { color: var(--accent); font-size: 28px; }
+  .produk-empty-state-title { color: var(--text-primary); font-size: 16px; font-weight: 700; }
+  .produk-empty-state-description { font-size: 14px; margin: 0; }
         .produk-item { background: var(--bg-primary); border-radius: 18px; border: 1px solid var(--border-color); overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; cursor: pointer; opacity: 0; transform: translateY(30px); }
         .produk-item.scroll-show { animation: scrollReveal 0.6s ease forwards; }
         @keyframes scrollReveal { to { opacity: 1; transform: translateY(0); } }
@@ -1356,15 +1360,6 @@
         <div class="page-card">
             <h2><i class="fas fa-shopping-cart"></i> <span data-i18n="produk_title">Produk Kami</span></h2>
             <p data-i18n="produk_desc">Klik produk untuk lihat detail lengkap:</p>
-            <div class="promo-banner">
-                <div class="promo-text" data-i18n="promo_text">🔥 PROMO TERBATAS 🔥</div>
-                <div class="countdown-timer">
-                    <div class="countdown-box"><div class="countdown-value" id="cdDays">00</div><div class="countdown-label" data-i18n="cd_days">Hari</div></div>
-                    <div class="countdown-box"><div class="countdown-value" id="cdHours">00</div><div class="countdown-label" data-i18n="cd_hours">Jam</div></div>
-                    <div class="countdown-box"><div class="countdown-value" id="cdMinutes">00</div><div class="countdown-label" data-i18n="cd_minutes">Menit</div></div>
-                    <div class="countdown-box"><div class="countdown-value" id="cdSeconds">00</div><div class="countdown-label" data-i18n="cd_seconds">Detik</div></div>
-                </div>
-            </div>
             <div class="produk-list" id="produkList"></div>
             <div class="credit"><strong>Ananta</strong> &copy; 2025</div>
         </div>
@@ -1452,7 +1447,7 @@
             <button class="modal-close" type="button" aria-label="Tutup detail produk" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <img src="" alt="Detail Produk" class="modal-image" id="modalImage">
             <div class="modal-body">
-                <h2 class="modal-title" id="modalTitle">Alight Motion 1 Tahun</h2>
+                <h2 class="modal-title" id="modalTitle">Detail Produk</h2>
                 <div class="modal-rating">
                     <div class="modal-stars" id="modalStars"></div>
                     <span class="modal-rating-score" id="modalRatingScore">4.9</span>
@@ -1495,20 +1490,7 @@
     </div>
 
     <script>
-        // ================= DATA PRODUK (Hanya Alight Motion) =================
-        const products = [
-            {
-                image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=400&fit=crop',
-                diskon: 'PROMO 8%', priceOld: 'Rp 130.000', price: 'Rp 119.000', priceNum: 119000,
-                stock: 'Unlimited', rating: 4.9, reviewCount: 210,
-                category: { id: 'Aplikasi', en: 'Application' },
-                desc: { 
-                    id: 'Alight Motion Pro 1 Tahun, nikmati semua fitur premium tanpa watermark, tanpa iklan, dan akses penuh ke semua efek & template. Aktivasi cepat dan aman!', 
-                    en: 'Alight Motion Pro 1 Year, enjoy all premium features without watermark, no ads, and full access to all effects & templates. Fast and safe activation!' 
-                },
-                wa: 'https://wa.me/6283826963189?text=Halo%20Ananta%2C%20saya%20mau%20order%20Alight%20Motion%201%20Tahun%20(Rp%20119.000)'
-            }
-        ];
+        const products = [];
 
         // ================= DATA PANEL PTERODACTYL =================
         const ramPackages = [
@@ -1547,21 +1529,16 @@
         let appliedVoucher = 0, appliedVoucherCode = '', selectedPayment = '';
         let currentLang = localStorage.getItem('ananta-lang') || 'id';
         let currentProductIndex = 0;
-        let cart = JSON.parse(localStorage.getItem('ananta-cart') || '[]');
-
-        // ================= COUNTDOWN =================
-        const promoEndDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000);
-        function updateCountdown() {
-            const distance = promoEndDate - new Date().getTime();
-            if (distance < 0) { ['cdDays', 'cdHours', 'cdMinutes', 'cdSeconds'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '00'; }); return; }
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            const els = { cdDays: days, cdHours: hours, cdMinutes: minutes, cdSeconds: seconds };
-            Object.keys(els).forEach(id => { const el = document.getElementById(id); if(el) el.textContent = String(els[id]).padStart(2, '0'); });
+        let cart = [];
+        try {
+            const savedCart = JSON.parse(localStorage.getItem('ananta-cart') || '[]');
+            if (Array.isArray(savedCart)) {
+                cart = savedCart.filter((item) => Number.isInteger(item?.id) && products[item.id] && Number.isInteger(item.qty) && item.qty > 0);
+            }
+        } catch {
+            cart = [];
         }
-        setInterval(updateCountdown, 1000); updateCountdown();
+        localStorage.setItem('ananta-cart', JSON.stringify(cart));
 
         // ================= TRANSLATIONS =================
         const translations = {
@@ -1569,8 +1546,9 @@
                 search_placeholder: "Cari produk, kata penjualan...", active_badge: "Aktif!",
                 menu_home: "Rumah", menu_produk: "Produk", menu_panel: "Panel Pterodactyl", menu_penjualan: "Kata Penjualan",
                 theme_light: "Lampu", theme_dark: "Gelap", color_btn: "Atur Warna", link_wa: "Saluran WhatsApp",
-                produk_title: "Produk Kami", produk_desc: "Klik produk untuk lihat detail lengkap:",
-                produk1_name: "Alight Motion 1 Tahun",
+                produk_title: "Produk Kami", produk_desc: "Tidak ada produk untuk dijual saat ini.",
+                produk_empty_title: "Belum ada produk tersedia",
+                produk_empty_desc: "Silakan kembali lagi nanti untuk melihat pembaruan katalog.",
                 order_btn: "Order Sekarang", detail_btn: "Detail", add_to_cart: "Tambah Keranjang", order_now: "Order Langsung",
                 sales_title: "Kata Penjualan Terbaik", sales_desc: "Kumpulan kata-kata promosi yang bisa bikin pembeli tertarik:",
                 quote1: '"Kualitas bukan kebetulan, tapi pilihan. Pilih yang terbaik untukmu hari ini!"',
@@ -1581,7 +1559,7 @@
                 chat_tooltip: "💬 Butuh bantuan? Chat kami!", modal_desc_title: "Deskripsi Produk", modal_specs_title: "Informasi Produk",
                 modal_stock: "Stok Tersedia", modal_category: "Kategori", modal_condition: "Kondisi", modal_condition_value: "Baru & Original",
                 promo_text: "🔥 PROMO TERBATAS 🔥", cd_days: "Hari", cd_hours: "Jam", cd_minutes: "Menit", cd_seconds: "Detik",
-                cart_title: "Keranjang", cart_empty: "Keranjang masih kosong", cart_empty_desc: "Yuk pilih produk dulu!",
+                cart_title: "Keranjang", cart_empty: "Keranjang masih kosong", cart_empty_desc: "Tidak ada produk yang tersedia untuk dibeli saat ini.",
                 cart_subtotal: "Subtotal", cart_discount: "Diskon", cart_total: "Total", voucher_placeholder: "Kode Voucher", voucher_apply: "Pakai",
                 voucher_success: "✅ Voucher berhasil! Diskon", voucher_error: "❌ Kode voucher tidak valid!",
                 payment_title: "Metode Pembayaran", payment_bca: "Transfer BCA", payment_qris: "QRIS", payment_dana: "DANA", payment_cod: "COD",
@@ -1603,8 +1581,9 @@
                 search_placeholder: "Search products, sales quotes...", active_badge: "Active!",
                 menu_home: "Home", menu_produk: "Products", menu_panel: "Pterodactyl Panel", menu_penjualan: "Sales Quotes",
                 theme_light: "Light", theme_dark: "Dark", color_btn: "Color Settings", link_wa: "WhatsApp Channel",
-                produk_title: "Our Products", produk_desc: "Click product to see full details:",
-                produk1_name: "Alight Motion 1 Year",
+                produk_title: "Our Products", produk_desc: "There are no products available for sale right now.",
+                produk_empty_title: "No products are available",
+                produk_empty_desc: "Check back later for catalog updates.",
                 order_btn: "Order Now", detail_btn: "Detail", add_to_cart: "Add to Cart", order_now: "Order Now",
                 sales_title: "Best Sales Quotes", sales_desc: "A collection of promotional quotes to attract buyers:",
                 quote1: '"Quality is not an accident, it is a choice. Choose the best for yourself today!"',
@@ -1615,7 +1594,7 @@
                 chat_tooltip: "💬 Need help? Chat us!", modal_desc_title: "Product Description", modal_specs_title: "Product Information",
                 modal_stock: "Available Stock", modal_category: "Category", modal_condition: "Condition", modal_condition_value: "New & Original",
                 promo_text: "🔥 LIMITED PROMO 🔥", cd_days: "Days", cd_hours: "Hours", cd_minutes: "Minutes", cd_seconds: "Seconds",
-                cart_title: "Cart", cart_empty: "Your cart is empty", cart_empty_desc: "Let's pick some products first!",
+                cart_title: "Cart", cart_empty: "Your cart is empty", cart_empty_desc: "There are no products available for purchase right now.",
                 cart_subtotal: "Subtotal", cart_discount: "Discount", cart_total: "Total", voucher_placeholder: "Voucher Code", voucher_apply: "Apply",
                 voucher_success: "✅ Voucher applied! Discount", voucher_error: "❌ Invalid voucher code!",
                 payment_title: "Payment Method", payment_bca: "BCA Transfer", payment_qris: "QRIS", payment_dana: "DANA", payment_cod: "COD",
@@ -1651,6 +1630,10 @@
             const list = document.getElementById('produkList');
             if (!list) return;
             const t = translations[currentLang];
+            if (products.length === 0) {
+                list.innerHTML = `<div class="produk-empty-state" role="status"><i class="fas fa-box-open" aria-hidden="true"></i><p class="produk-empty-state-title">${t.produk_empty_title}</p><p class="produk-empty-state-description">${t.produk_empty_desc}</p></div>`;
+                return;
+            }
             list.innerHTML = products.map((p, i) => `
                 <div class="produk-item" onclick="openModal(${i})">
                     <span class="diskon-badge">${p.diskon}</span>
@@ -1776,6 +1759,7 @@
 
         // ================= MODAL DETAIL =================
         function openModal(index) {
+            if (!products[index]) return;
             currentProductIndex = index;
             const p = products[index]; const lang = currentLang; const t = translations[lang];
             document.getElementById('modalImage').src = p.image;
@@ -1806,6 +1790,7 @@
         function saveCart() { localStorage.setItem('ananta-cart', JSON.stringify(cart)); }
 
         function addToCart(index) {
+            if (!products[index]) return;
             const existing = cart.find(item => item.id === index);
             if (existing) existing.qty += 1;
             else cart.push({ id: index, qty: 1 });
@@ -1964,7 +1949,6 @@
                 { name: t.menu_produk, icon: 'fa-shopping-cart', page: 'produk' },
                 { name: t.menu_panel, icon: 'fa-server', page: 'panel' },
                 { name: t.menu_penjualan, icon: 'fa-quote-left', page: 'penjualan' },
-                { name: t.produk1_name, icon: 'fa-film', page: 'produk' },
                 { name: t.link_wa, icon: 'fa-whatsapp', url: 'https://whatsapp.com/channel/0029Vb6XtueHrDZov63eGV1g' },
                 { name: 'Instagram', icon: 'fa-instagram', url: 'https://www.instagram.com/adnnrfndi' },
                 { name: 'TikTok', icon: 'fa-tiktok', url: 'https://www.tiktok.com/@naan.nn1' },
